@@ -27,7 +27,7 @@ async function buildTabList() {
     }
     let title = t.title + '&nbsp;'.repeat(50)
     li.innerHTML = `
-<span id='c-${t.id}' class='close-btn hover-btn'>⨯</span>
+<span id='c-${t.id}' class='close-btn hover-btn'>&nbsp;⨯&nbsp;</span>
 <span class='tab-lnk hover-btn' id='t-${t.id}' title='${t.title} - ${t.url}'>
   ${img}
   ${title}
