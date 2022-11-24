@@ -9,7 +9,7 @@ body {
 ul {
     list-style: none;
     padding: 0;
-    margin: 0.5em;
+    margin: 0;
 }
 
 li {
@@ -51,6 +51,7 @@ a {
     /* color: white; */
     background-color: #d5d5d5;
     color: black;
+    font-size: large;
 }
 
 #newtab-btn {
