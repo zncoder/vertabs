@@ -1,17 +1,23 @@
 const tabsDiv = document.querySelector('#tabs-div')
 let tabsUl = document.querySelector('#tabs-ul')
 
+function cmpTabs(ta, tb) {
+  if (ta.pinned !== tb.pinned) {
+    return ta.pinned ? -1 : 1
+  }
+
+  let ua = new URL(ta.url)
+  let ub = new URL(tb.url)
+  if (ua.hostname != ub.hostname) {
+    return ua.hostname.localeCompare(ub.hostname)
+  }
+
+  return ta.id - tb.id
+}
+
 async function buildTabList() {
   let tabs = await browser.tabs.query({currentWindow: true})
-  tabs.sort((a, b) => {
-    if (a.pinned === b.pinned) {
-      return a.id - b.id
-    } else if (a.pinned) {
-      return -1
-    } else {
-      return 1
-    }
-  })
+  tabs.sort(cmpTabs)
 
   let ul = document.createElement('ul')
   for (let t of tabs) {

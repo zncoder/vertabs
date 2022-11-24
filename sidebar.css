@@ -79,5 +79,6 @@ a {
 
 .active-tab {
     background-color: #96b2d7;
+    font-weight: bold;
     /* border-radius: 16px 0 0 16px; */
 }
