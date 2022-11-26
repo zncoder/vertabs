@@ -35,6 +35,7 @@ li {
     margin: 0;
     /* float: right; */
     visibility: hidden;
+    cursor: crosshair;
 }
 
 li:hover > .close-btn {
