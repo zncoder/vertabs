@@ -1,10 +1,11 @@
 {
   "name": "vertabs",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "manifest_version": 2,
   "description": "Show tabs vertically in sidebar",
   "permissions": [
     "sessions",
+    "storage",
     "tabs"
   ],
   "icons": {
@@ -14,7 +15,10 @@
     "default_title": "Vertabs",
     "default_panel": "sidebar.html",
     "default_icon": "icons/48.png"
-
+  },
+  "options_ui": {
+      "page": "options.html",
+      "browser_style": true
   },
   "browser_action": {
     "default_icon": "icons/32.png",

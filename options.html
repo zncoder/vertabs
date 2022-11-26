@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1, maximum-scale=1">
+    <title>Vertabs Options</title>
+  </head>
+
+  <body>
+    <p><label for="sort-choice">Choose the order to sort tabs</label></p>
+    <p>
+      <select name="sort-choice" id="sort-choice">
+        <option value="last-access">Last access</option>
+        <option value="time-created">Time created</option>
+        <option value="hostname">Group by hostname</option>
+      </select>
+    </p>
+    <p><button id="save">Save</button></p>
+    <p id="status"></p>
+  </body>
+  <script src="options.js"></script>
+</html>
