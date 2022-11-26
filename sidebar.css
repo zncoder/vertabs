@@ -14,14 +14,31 @@ ul {
 
 li {
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: "";
     margin: 0.2em;
     padding: 0.3em 0 0.3em 0;
 }
 
 .close-btn, .tab-lnk {
     vertical-align: middle;
+}
+
+.tab-lnk {
+    display: inline-block;
+    width: 94%;
+    overflow: hidden;
+    text-overflow: "";
+    padding: 0 1em 0 0;
+}
+
+.close-btn {
+    padding: 0;
+    margin: 0;
+    /* float: right; */
+    visibility: hidden;
+}
+
+li:hover > .close-btn {
+    visibility: visible;
 }
 
 a {
@@ -35,10 +52,6 @@ a {
     justify-content: space-between;
     border-top: 1px solid;
     border-top-color: #c0c0c0;
-}
-
-.close-btn {
-    margin: 0;
 }
 
 .action-btn {
@@ -80,6 +93,9 @@ a {
 
 .active-tab {
     background-color: #96b2d7;
-    font-weight: bold;
     /* border-radius: 16px 0 0 16px; */
+}
+
+.active-tab > .tab-lnk {
+    font-weight: bold;
 }

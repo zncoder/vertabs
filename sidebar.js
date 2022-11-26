@@ -29,6 +29,7 @@ async function buildTabList() {
   for (let t of tabs) {
     let li = document.createElement('li')
     li.id = `li-${t.id}`
+    li.classList.add('hover-btn')
     if (t.active) {
       li.classList.add('active-tab')
     }
@@ -37,13 +38,8 @@ async function buildTabList() {
     if (t.favIconUrl && !t.favIconUrl.startsWith('chrome://mozapps')) {
       img = `<img src='${t.favIconUrl}' class="favicon">`
     }
-    let title = t.title + '&nbsp;'.repeat(50)
     li.innerHTML = `
-<span id='c-${t.id}' class='close-btn hover-btn'>&nbsp;⨯&nbsp;</span>
-<span class='tab-lnk hover-btn' id='t-${t.id}' title='${t.title} - ${t.url}'>
-  ${img}
-  ${title}
-</span>
+<span id='c-${t.id}' class='close-btn' title='close'>&nbsp;⨯&nbsp;</span><span class='tab-lnk' id='t-${t.id}' title='${t.title} - ${t.url}'>${img}${t.title}</span>
 `
     li.querySelector('.close-btn').onclick = closeThisTab
     li.querySelector('.tab-lnk').onclick = focusThisTab
