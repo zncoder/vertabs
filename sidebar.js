@@ -36,7 +36,7 @@ async function buildTabList() {
 
     let img = ''
     if (t.favIconUrl && !t.favIconUrl.startsWith('chrome://mozapps')) {
-      img = `<img src='${t.favIconUrl}' class="favicon">`
+      img = `<img src='${t.favIconUrl}' class="favicon"> `
     }
     li.innerHTML = `
 <span id='c-${t.id}' class='close-btn' title='close'>&nbsp;⨯&nbsp;</span><span class='tab-lnk' id='t-${t.id}' title='${t.title} - ${t.url}'>${img}${t.title}</span>
