@@ -1,10 +1,15 @@
 const tabsDiv = document.querySelector('#tabs-div')
 let tabsUl = document.querySelector('#tabs-ul')
+let pinnedTabs = new Set()
+
+function isPinned(t) {
+  return t.pinned || pinnedTabs.has(t.id)
+}
 
 function cmpTabs(choice, ta, tb) {
-  if (ta.pinned !== tb.pinned) {
-    return ta.pinned ? -1 : 1
-  } else if (ta.pinned) {
+  if (isPinned(ta) !== isPinned(tb)) {
+    return isPinned(ta) ? -1 : 1
+  } else if (isPinned(ta)) {
     return ta.id - tb.id
   } else if (choice === 'last-access') {
     x = tb.lastAccessed - ta.lastAccessed
@@ -81,9 +86,11 @@ function newTab(ev) {
 
 async function pinTab(ev) {
   let [tab] = await browser.tabs.query({active: true, currentWindow: true})
-  console.log('pintab', ev, tab)
-  if (tab) {
-    browser.tabs.update(tab.id, {pinned: !tab.pinned})
+  if (isPinned(tab)) {
+    pinnedTabs.delete(tab.id)
+    browser.tabs.update(tab.id, {pinned: false})
+  } else {
+    pinnedTabs.add(tab.id)
   }
 }
 
@@ -120,6 +127,9 @@ for (const [name, ev] of Object.entries({
 })) {
   ev.addListener(x => {
     console.log(name, x)
+    if (name === 'onRemoved' || name === 'onDetached') {
+      pinnedTabs.delete(x)
+    }
     refreshPage()
   })
 }
