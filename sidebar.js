@@ -70,7 +70,7 @@ function closeTab(tid) {
 }
 
 function focusThisTab(ev) {
-  let tid = parseInt(ev.target.id.substring(3))) // li-<tid>
+  let tid = parseInt(ev.target.id.substring(3)) // li-<tid>
   browser.tabs.update(tid, {active: true})
 }
 
