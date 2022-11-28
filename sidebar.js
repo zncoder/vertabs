@@ -47,7 +47,7 @@ async function buildTabList() {
 <span id='c-${t.id}' class='close-btn' title='close'>&nbsp;⨯&nbsp;</span><span class='tab-lnk' id='t-${t.id}' title='${t.title} - ${t.url}'>${img}${t.title}</span>
 `
     li.querySelector('.close-btn').onclick = closeThisTab
-    li.querySelector('.tab-lnk').onclick = focusThisTab
+    li.onclick = focusThisTab
     ul.appendChild(li)
   }
   return ul
@@ -59,14 +59,8 @@ async function refreshPage() {
   tabsUl = newUl
 }
 
-function getTabId(ev) {
-  return parseInt(ev.target.id.substring(2))
-}
-
 function closeThisTab(ev) {
-  // console.log('closethistab', ev.target)
-  let tid = getTabId(ev)
-  closeTab(tid)
+  closeTab(parseInt(ev.target.id.substring(2))) // c-<tid>
 }
 
 function closeTab(tid) {
@@ -76,7 +70,7 @@ function closeTab(tid) {
 }
 
 function focusThisTab(ev) {
-  let tid = getTabId(ev)
+  let tid = parseInt(ev.target.id.substring(3))) // li-<tid>
   browser.tabs.update(tid, {active: true})
 }
 
