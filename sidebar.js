@@ -59,8 +59,12 @@ async function refreshPage() {
   tabsUl = newUl
 }
 
+function getTabId(ev) {
+  return parseInt(ev.target.id.split('-')[1])
+}
+
 function closeThisTab(ev) {
-  closeTab(parseInt(ev.target.id.substring(2))) // c-<tid>
+  closeTab(getTabId(ev))
 }
 
 function closeTab(tid) {
@@ -70,7 +74,7 @@ function closeTab(tid) {
 }
 
 function focusThisTab(ev) {
-  let tid = parseInt(ev.target.id.substring(3)) // li-<tid>
+  let tid = getTabId(ev)
   browser.tabs.update(tid, {active: true})
 }
 
