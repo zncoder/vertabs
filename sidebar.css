@@ -51,8 +51,8 @@ a {
 #actions-div {
     display: flex;
     justify-content: space-between;
-    border-top: 1px solid;
-    border-top-color: #c0c0c0;
+    border-bottom: 1px dotted;
+    border-bottom-color: #c0c0c0;
 }
 
 .action-btn {
