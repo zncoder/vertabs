@@ -30,6 +30,15 @@ async function buildTabList() {
   let choice = options.sortChoice ? options.sortChoice : 'last-access'
   tabs.sort((ta, tb) => cmpTabs(choice, ta, tb))
 
+  let tpin = null
+  for (let t of tabs) {
+    if (isPinned(t)) {
+      tpin = t
+    } else {
+      break
+    }
+  }
+
   let ul = document.createElement('ul')
   for (let t of tabs) {
     let li = document.createElement('li')
@@ -37,6 +46,9 @@ async function buildTabList() {
     li.classList.add('hover-btn')
     if (t.active) {
       li.classList.add('active-tab')
+    }
+    if (t == tpin) {
+      li.classList.add('last-pin-tab')
     }
 
     let img = ''
