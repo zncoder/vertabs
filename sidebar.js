@@ -1,6 +1,6 @@
 const tabsDiv = document.querySelector('#tabs-div')
 let tabsUl = document.querySelector('#tabs-ul')
-let pinnedTabs = new Set()
+let pinnedTabs
 
 function isPinned(t) {
   return t.pinned || pinnedTabs.has(t.id)
@@ -65,7 +65,33 @@ async function buildTabList() {
   return ul
 }
 
+async function loadPinnedTabs() {
+  let win = await browser.windows.getCurrent()
+  let key = `w-${win.id}`
+  let obj = await browser.storage.local.get(key)
+  let pinned = obj[key]
+  if (pinned) {
+    pinnedTabs = new Set(pinned)
+  } else {
+    pinnedTabs = new Set()
+  }
+}
+
+async function savePinnedTabs() {
+  let win = await browser.windows.getCurrent()
+  if (win) {
+    let obj = {}
+    obj[`w-${win.id}`] = Array.from(pinnedTabs)
+    // console.log('save pinned', obj)
+    await browser.storage.local.set(obj)
+  }
+}
+
 async function refreshPage() {
+  if (pinnedTabs === undefined) {
+    await loadPinnedTabs()
+  }
+
   let newUl = await buildTabList()
   tabsDiv.replaceChild(newUl, tabsUl)
   tabsUl = newUl
@@ -102,6 +128,7 @@ async function pinTab(ev) {
   } else {
     pinnedTabs.add(tab.id)
   }
+  savePinnedTabs()
 }
 
 async function undoTab(ev) {
