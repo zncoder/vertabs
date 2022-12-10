@@ -166,27 +166,21 @@ for (const [name, ev] of Object.entries({
     console.log(name, x)
     if (name === 'onRemoved' || name === 'onDetached') {
       pinnedTabs.delete(x)
-      setSuccessor(x)
+    } else if (name === 'onActivated') {
+      setSuccessor()
     }
     refreshPage()
   })
 }
 
-async function setSuccessor(cur) {
-  let next
+async function setSuccessor() {
   let tabs = await browser.tabs.query({hidden: false, currentWindow: true})
-  for (let t of tabs) {
-    if (t === cur) {
-      continue
-    } else if (next === undefined) {
-      next = t
-    } else if (next.lastAccessed < t.lastAccessed) {
-      next = t
-    }
+  tabs.sort((a, b) => b.lastAccessed - a.lastAccessed)
+  let tids = []
+  for (let x of tabs) {
+    tids.push(x.id)
   }
-  if (next) {
-    browser.tabs.moveInSuccession([cur.id, next.id])
-  }
+  browser.tabs.moveInSuccession(tids)
 }
 
 document.querySelector('#newtab-btn').onclick = newTab
