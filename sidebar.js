@@ -152,6 +152,11 @@ async function detachTab(ev) {
   }
 }
 
+async function replaceTab(ev) {
+  await closeCurTab(ev)
+  await newTab(ev)
+}
+
 for (const [name, ev] of Object.entries({
   'onActivated': browser.tabs.onActivated,
   'onAttached': browser.tabs.onAttached,
@@ -184,6 +189,8 @@ async function setSuccessor() {
 }
 
 document.querySelector('#newtab-btn').onclick = newTab
+document.querySelector('#replace-btn').onclick = replaceTab
+// document.querySelector('#inspect-btn').onclick = inspectTab
 document.querySelector('#pin-btn').onclick = pinTab
 document.querySelector('#detach-btn').onclick = detachTab
 document.querySelector('#undo-btn').onclick = undoTab
