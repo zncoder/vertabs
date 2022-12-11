@@ -157,6 +157,11 @@ async function replaceTab(ev) {
   await newTab(ev)
 }
 
+async function dupTab(ev) {
+  let [tab] = await browser.tabs.query({active: true, currentWindow: true})
+  browser.tabs.duplicate(tab.id)
+}
+
 for (const [name, ev] of Object.entries({
   'onActivated': browser.tabs.onActivated,
   'onAttached': browser.tabs.onAttached,
@@ -190,6 +195,7 @@ async function setSuccessor() {
 
 document.querySelector('#newtab-btn').onclick = newTab
 document.querySelector('#replace-btn').onclick = replaceTab
+document.querySelector('#dup-btn').onclick = dupTab
 // document.querySelector('#inspect-btn').onclick = inspectTab
 document.querySelector('#pin-btn').onclick = pinTab
 document.querySelector('#detach-btn').onclick = detachTab
