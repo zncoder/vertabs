@@ -1,8 +1,7 @@
 body {
     /* background-color: #3b3b3b; */
     /* color: white; */
-    /* background-color: #f5f5f7; */
-    background-color: #d0dee9;
+    background-color: #d6d6d6;
     color: black;
 }
 
@@ -68,7 +67,7 @@ a {
     width: 2em;
     /* background-color: #3b3b3b; */
     /* color: white; */
-    background-color: #d0dee9;
+    background-color: #d6d6d6;
     color: black;
     font-size: large;
 }
