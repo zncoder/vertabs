@@ -103,6 +103,7 @@ function getTabId(ev) {
 }
 
 function closeThisTab(ev) {
+  event.stopPropagation()
   closeTab(getTabId(ev))
 }
 

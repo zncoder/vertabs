@@ -40,6 +40,10 @@ li {
     cursor: crosshair;
 }
 
+li:hover > .close-btn {
+    visibility: visible;
+}
+
 a {
     text-decoration: none;
     /* color: white; */
@@ -88,4 +92,13 @@ a {
 
 .hidden {
     display: none;
+}
+
+.active-tab {
+    background-color: #96b2d7;
+    /* border-radius: 16px 0 0 16px; */
+}
+
+.active-tab > .tab-lnk {
+    font-weight: bold;
 }
