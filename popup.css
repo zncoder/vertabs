@@ -94,11 +94,14 @@ a {
     display: none;
 }
 
-.active-tab {
-    background-color: #96b2d7;
-    /* border-radius: 16px 0 0 16px; */
-}
-
-.active-tab > .tab-lnk {
-    font-weight: bold;
+#sidebar-btn {
+    position: fixed;
+    right: 4px;
+    top: 4px;
+    font-size: xx-large;
+    border: 0px;
+    /* background-color: #59b1eb; */
+    background-color: transparent;
+    color: green;
+    z-index: 1;
 }
