@@ -1,0 +1,91 @@
+body {
+    font-family: sans-serif;
+    font-size: small;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+li {
+    white-space: nowrap;
+    margin: 0.2em;
+    padding: 0.3em 0 0.3em 0;
+}
+
+.last-pin-tab {
+    border-bottom: 1px solid;
+    border-bottom-color: #c0c0c0;
+}
+
+.close-btn, .tab-lnk {
+    vertical-align: middle;
+}
+
+.tab-lnk {
+    display: inline-block;
+    width: 94%;
+    overflow: hidden;
+    text-overflow: "";
+    padding: 0 1em 0 0;
+}
+
+.close-btn {
+    padding: 0;
+    margin: 0;
+    /* float: right; */
+    visibility: hidden;
+    cursor: crosshair;
+}
+
+a {
+    text-decoration: none;
+    /* color: white; */
+    color: black;
+}
+
+#actions-div {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid;
+    border-bottom-color: #c0c0c0;
+}
+
+.action-btn {
+    border: 0;
+    margin: auto;
+    text-align: center;
+    padding: 0;
+    width: 2em;
+    /* background-color: #3b3b3b; */
+    /* color: white; */
+    background-color: #d6d6d6;
+    color: black;
+    font-size: large;
+}
+
+#newtab-btn {
+    float: left;
+}
+
+#undo-btn, #pin-btn {
+    float: right;
+}
+
+.hover-btn:hover {
+    /* background-color: #4f4f4f; */
+    /* background-color: #d9d9dc; */
+    background-color: #96b2d7;
+}
+
+.favicon {
+    width: 1em;
+    vertical-align: middle;
+    pointer-events: none;
+}
+
+.hidden {
+    display: none;
+}

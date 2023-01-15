@@ -1,3 +1,4 @@
+const isPopup = window.location.href.endsWith('popup')
 const tabsDiv = document.querySelector('#tabs-div')
 let tabsUl = document.querySelector('#tabs-ul')
 let pinnedTabs
@@ -114,6 +115,9 @@ function closeTab(tid) {
 function focusThisTab(ev) {
   let tid = getTabId(ev)
   browser.tabs.update(tid, {active: true})
+  if (isPopup) {
+    window.close()
+  }
 }
 
 function newTab(ev) {
@@ -192,14 +196,5 @@ async function setSuccessor() {
   }
   browser.tabs.moveInSuccession(tids)
 }
-
-document.querySelector('#newtab-btn').onclick = newTab
-document.querySelector('#replace-btn').onclick = replaceTab
-document.querySelector('#dup-btn').onclick = dupTab
-// document.querySelector('#inspect-btn').onclick = inspectTab
-document.querySelector('#pin-btn').onclick = pinTab
-document.querySelector('#detach-btn').onclick = detachTab
-document.querySelector('#undo-btn').onclick = undoTab
-document.querySelector('#close-cur-btn').onclick = closeCurTab
 
 refreshPage()
