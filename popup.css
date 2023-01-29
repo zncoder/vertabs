@@ -1,7 +1,8 @@
 body {
     font-family: sans-serif;
     font-size: small;
-    background-color: #d6d6d6;
+    /* background-color: #d6d6d6; */
+    background-color: #e5e8ea;
 }
 
 ul {
@@ -66,7 +67,8 @@ a {
     width: 2em;
     /* background-color: #3b3b3b; */
     /* color: white; */
-    background-color: #d6d6d6;
+    /* background-color: #d6d6d6; */
+    background-color: #e5e8ea;
     color: black;
     font-size: large;
 }

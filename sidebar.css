@@ -1,7 +1,7 @@
 body {
     /* background-color: #3b3b3b; */
     /* color: white; */
-    background-color: #d6d6d6;
+    background-color: #e5e8ea;
     color: black;
 }
 
@@ -67,7 +67,7 @@ a {
     width: 2em;
     /* background-color: #3b3b3b; */
     /* color: white; */
-    background-color: #d6d6d6;
+    background-color: #e5e8ea;
     color: black;
     font-size: large;
 }
@@ -84,6 +84,7 @@ a {
     /* background-color: #4f4f4f; */
     /* background-color: #d9d9dc; */
     background-color: #96b2d7;
+    border-radius: 16px 16px 16px 16px;
 }
 
 .favicon {
@@ -98,7 +99,7 @@ a {
 
 .active-tab {
     background-color: #96b2d7;
-    /* border-radius: 16px 0 0 16px; */
+    border-radius: 16px 16px 16px 16px;
 }
 
 .active-tab > .tab-lnk {
