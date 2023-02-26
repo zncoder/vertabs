@@ -61,6 +61,7 @@ async function buildTabList() {
 `
     li.querySelector('.close-btn').onclick = closeThisTab
     li.onclick = focusThisTab
+    li.onauxclick = closeThisTab
     ul.appendChild(li)
   }
   return ul
@@ -103,7 +104,8 @@ function getTabId(ev) {
 }
 
 function closeThisTab(ev) {
-  event.stopPropagation()
+  ev.preventDefault()
+  ev.stopPropagation()
   closeTab(getTabId(ev))
 }
 
@@ -114,6 +116,7 @@ function closeTab(tid) {
 }
 
 function focusThisTab(ev) {
+  ev.preventDefault()
   let tid = getTabId(ev)
   browser.tabs.update(tid, {active: true})
   if (isPopup) {
