@@ -5,4 +5,5 @@ document.querySelector('#dup-btn').onclick = dupTab
 document.querySelector('#pin-btn').onclick = pinTab
 document.querySelector('#detach-btn').onclick = detachTab
 document.querySelector('#undo-btn').onclick = undoTab
-document.querySelector('#close-cur-btn').onclick = closeCurTab
+// document.querySelector('#close-cur-btn').onclick = closeCurTab
+document.querySelector('#hide-sidebar-btn').onclick = hideSidebar

@@ -146,6 +146,10 @@ async function undoTab(ev) {
   }
 }
 
+async function hideSidebar(ev) {
+  browser.sidebarAction.toggle()
+}
+
 async function closeCurTab(ev) {
   let [tab] = await browser.tabs.query({active: true, currentWindow: true})
   if (tab) {
