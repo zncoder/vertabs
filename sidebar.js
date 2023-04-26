@@ -1,17 +1,16 @@
 const isPopup = window.location.href.endsWith('popup')
 const tabsDiv = document.querySelector('#tabs-div')
-let tabsUl = document.querySelector('#tabs-ul')
-let pinnedTabs
-
-function isPinned(t) {
-  return t.pinned || pinnedTabs.has(t.id)
-}
+let pinnedUl = document.querySelector('#pinned-ul')
+let othersUl = document.querySelector('#others-ul')
+let pinnedTabs // tab.pinned is not used
 
 function cmpTabs(choice, ta, tb) {
-  if (isPinned(ta) !== isPinned(tb)) {
-    return isPinned(ta) ? -1 : 1
-  } else if (isPinned(ta)) {
-    return ta.id - tb.id
+  let ai = pinnedTabs.findIndex(x => x === ta.id)
+  let bi = pinnedTabs.findIndex(x => x === tb.id)
+  if (ai >= 0 !== bi >= 0) {
+    return ai >= 0 ? -1 : 1
+  } else if (ai >= 0) {
+    return ai - bi
   } else if (choice === 'last-access') {
     x = tb.lastAccessed - ta.lastAccessed
     return x
@@ -27,29 +26,34 @@ function cmpTabs(choice, ta, tb) {
 
 async function buildTabList() {
   let tabs = await browser.tabs.query({currentWindow: true})
-  let options = await browser.storage.local.get('sortChoice')
-  let choice = options.sortChoice ? options.sortChoice : 'last-access'
-  tabs.sort((ta, tb) => cmpTabs(choice, ta, tb))
-
-  let tpin = null
+  let pinned = []
+  let others = []
   for (let t of tabs) {
-    if (isPinned(t)) {
-      tpin = t
+    if (pinnedTabs.find(x => x === t.id)) {
+      pinned.push(t)
     } else {
-      break
+      others.push(t)
     }
   }
 
+  pinned.sort((ta, tb) => ta.index - tb.index)
+
+  // let options = await browser.storage.local.get('sortChoice')
+  // let choice = options.sortChoice ? options.sortChoice : 'last-access'
+  others.sort((ta, tb) => tb.lastAccessed - ta.lastAccessed)
+
+  return [renderTabs(pinned, 'pinned-ul'), renderTabs(others, 'others-ul')]
+}
+
+function renderTabs(tabs, cls) {
   let ul = document.createElement('ul')
+  ul.classList.add(cls)
   for (let t of tabs) {
     let li = document.createElement('li')
     li.id = `li-${t.id}`
     li.classList.add('hover-btn')
     if (t.active) {
       li.classList.add('active-tab')
-    }
-    if (t == tpin) {
-      li.classList.add('last-pin-tab')
     }
 
     let img = ''
@@ -68,14 +72,13 @@ async function buildTabList() {
 }
 
 async function loadPinnedTabs() {
+  pinnedTabs = []
   let win = await browser.windows.getCurrent()
   let key = `w-${win.id}`
   let obj = await browser.storage.local.get(key)
   let pinned = obj[key]
   if (pinned) {
-    pinnedTabs = new Set(pinned)
-  } else {
-    pinnedTabs = new Set()
+    pinnedTabs = Array.from(pinned)
   }
 }
 
@@ -83,7 +86,7 @@ async function savePinnedTabs() {
   let win = await browser.windows.getCurrent()
   if (win) {
     let obj = {}
-    obj[`w-${win.id}`] = Array.from(pinnedTabs)
+    obj[`w-${win.id}`] = pinnedTabs
     // console.log('save pinned', obj)
     await browser.storage.local.set(obj)
   }
@@ -94,9 +97,11 @@ async function refreshPage() {
     await loadPinnedTabs()
   }
 
-  let newUl = await buildTabList()
-  tabsDiv.replaceChild(newUl, tabsUl)
-  tabsUl = newUl
+  let [pinned, others] = await buildTabList()
+  tabsDiv.replaceChild(pinned, pinnedUl)
+  pinnedUl = pinned
+  tabsDiv.replaceChild(others, othersUl)
+  othersUl = others
 }
 
 function getTabId(ev) {
@@ -111,7 +116,7 @@ function closeThisTab(ev) {
 
 function closeTab(tid) {
   let li = document.querySelector(`#li-${tid}`)
-  tabsUl.removeChild(li)
+  li.parentNode.removeChild(li)
   browser.tabs.remove([tid])
 }
 
@@ -128,13 +133,21 @@ function newTab(ev) {
   browser.tabs.create({active: true})
 }
 
+function removeFromPinnedTabs(tid) {
+  let i = pinnedTabs.findIndex(x => x === tid)
+  if (i >= 0) {
+    pinnedTabs.splice(i, 1)
+  }
+}
+
 async function pinTab(ev) {
   let [tab] = await browser.tabs.query({active: true, currentWindow: true})
-  if (isPinned(tab)) {
-    pinnedTabs.delete(tab.id)
-    browser.tabs.update(tab.id, {pinned: false})
+  if (pinnedTabs.find(x => x === tab.id)) {
+    removeFromPinnedTabs(tab.id)
+    await browser.tabs.move(tab.id, {index: pinnedTabs.length})
   } else {
-    pinnedTabs.add(tab.id)
+    pinnedTabs.splice(0, 0, tab.id)
+    await browser.tabs.move(tab.id, {index: 0})
   }
   savePinnedTabs()
 }
@@ -187,7 +200,7 @@ for (const [name, ev] of Object.entries({
   ev.addListener(x => {
     console.log(name, x)
     if (name === 'onRemoved' || name === 'onDetached') {
-      pinnedTabs.delete(x)
+      removeFromPinnedTabs(x)
     } else if (name === 'onActivated') {
       setSuccessor()
     }

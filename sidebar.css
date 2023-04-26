@@ -14,11 +14,6 @@
         color: black;
     }
 
-    .action-btn {
-        background-color: #e5e8ea;
-        color: black;
-    }
-
     .hover-btn:hover {
         background-color: #96b2d7;
     }
@@ -27,8 +22,17 @@
         background-color: #96b2d7;
     }
 
+    .action-btn {
+        background-color: #e5e8ea;
+        color: black;
+    }
+
     #actions-div {
-        border-bottom-color: #c0c0c0;
+        /* border-bottom-color: #c0c0c0; */
+    }
+
+    .pinned-ul {
+        background-color: #d1cfd7;
     }
 }
 
@@ -42,11 +46,6 @@
         color: white;
     }
 
-    .action-btn {
-        background-color: #3b3b3b;
-        color: white;
-    }
-
     .hover-btn:hover {
         background-color: #4f4f4f;
     }
@@ -55,9 +54,18 @@
         background-color: #454758;
     }
 
+    .action-btn {
+        background-color: #282a35;
+        color: white;
+    }
+
     #actions-div {
-        border-bottom-color: #c0c0c0;
-        background-color: #3b3b3b;
+        /* border-bottom-color: #c0c0c0; */
+        background-color: #282a35;
+    }
+
+    .pinned-ul {
+        background-color: #1c1b21;
     }
 }
 
@@ -108,7 +116,7 @@ a {
 #actions-div {
     display: flex;
     justify-content: space-between;
-    border-bottom: 1px solid;
+    /* border-bottom: 1px solid; */
 }
 
 .action-btn {
