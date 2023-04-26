@@ -1,8 +1,64 @@
-body {
-    /* background-color: #3b3b3b; */
-    /* color: white; */
-    background-color: #e5e8ea;
-    color: black;
+@media(prefers-color-scheme: light) {
+    body {
+        /* background-color: #3b3b3b; */
+        /* color: white; */
+        background-color: #e5e8ea;
+        color: black;
+    }
+
+    .last-pin-tab {
+        border-bottom-color: #c0c0c0;
+    }
+
+    a {
+        color: black;
+    }
+
+    .action-btn {
+        background-color: #e5e8ea;
+        color: black;
+    }
+
+    .hover-btn:hover {
+        background-color: #96b2d7;
+    }
+
+    .active-tab {
+        background-color: #96b2d7;
+    }
+
+    #actions-div {
+        border-bottom-color: #c0c0c0;
+    }
+}
+
+@media(prefers-color-scheme: dark) {
+    body {
+        background-color: #282a35;
+        color: ivory;
+    }
+
+    a {
+        color: white;
+    }
+
+    .action-btn {
+        background-color: #3b3b3b;
+        color: white;
+    }
+
+    .hover-btn:hover {
+        background-color: #4f4f4f;
+    }
+
+    .active-tab {
+        background-color: #454758;
+    }
+
+    #actions-div {
+        border-bottom-color: #c0c0c0;
+        background-color: #3b3b3b;
+    }
 }
 
 ul {
@@ -19,7 +75,6 @@ li {
 
 .last-pin-tab {
     border-bottom: 1px solid;
-    border-bottom-color: #c0c0c0;
 }
 
 .close-btn, .tab-lnk {
@@ -48,15 +103,12 @@ li:hover > .close-btn {
 
 a {
     text-decoration: none;
-    /* color: white; */
-    color: black;
 }
 
 #actions-div {
     display: flex;
     justify-content: space-between;
     border-bottom: 1px solid;
-    border-bottom-color: #c0c0c0;
 }
 
 .action-btn {
@@ -65,10 +117,6 @@ a {
     text-align: center;
     padding: 0;
     width: 2em;
-    /* background-color: #3b3b3b; */
-    /* color: white; */
-    background-color: #e5e8ea;
-    color: black;
     font-size: large;
 }
 
@@ -81,9 +129,6 @@ a {
 }
 
 .hover-btn:hover {
-    /* background-color: #4f4f4f; */
-    /* background-color: #d9d9dc; */
-    background-color: #96b2d7;
     border-radius: 16px 16px 16px 16px;
 }
 
@@ -98,7 +143,6 @@ a {
 }
 
 .active-tab {
-    background-color: #96b2d7;
     border-radius: 16px 16px 16px 16px;
 }
 
