@@ -71,6 +71,11 @@ body {
     font-family: sans-serif;
 }
 
+.pinned-ul {
+    margin: 0.2em;
+    border-radius: 4px;
+}
+
 ul {
     list-style: none;
     padding: 0;
