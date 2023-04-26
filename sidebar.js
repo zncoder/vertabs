@@ -143,13 +143,17 @@ function removeFromPinnedTabs(tid) {
 async function pinTab(ev) {
   let [tab] = await browser.tabs.query({active: true, currentWindow: true})
   if (pinnedTabs.find(x => x === tab.id)) {
-    removeFromPinnedTabs(tab.id)
+    await browser.tabs.update(tab.id, {pinned: false})
     await browser.tabs.move(tab.id, {index: pinnedTabs.length})
+    removeFromPinnedTabs(tab.id)
   } else {
+    await browser.tabs.update(tab.id, {pinned: true})
     pinnedTabs.splice(0, 0, tab.id)
     await browser.tabs.move(tab.id, {index: 0})
   }
   savePinnedTabs()
+
+  refreshPage()
 }
 
 async function undoTab(ev) {
@@ -198,7 +202,7 @@ for (const [name, ev] of Object.entries({
   'onUpdated': browser.tabs.onUpdated,
 })) {
   ev.addListener(x => {
-    console.log(name, x)
+    // console.log(name, x)
     if (name === 'onRemoved' || name === 'onDetached') {
       removeFromPinnedTabs(x)
     } else if (name === 'onActivated') {
