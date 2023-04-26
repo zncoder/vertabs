@@ -1,7 +1,5 @@
 @media(prefers-color-scheme: light) {
     body {
-        /* background-color: #3b3b3b; */
-        /* color: white; */
         background-color: #e5e8ea;
         color: black;
     }
@@ -67,6 +65,10 @@
     .pinned-ul {
         background-color: #1c1b21;
     }
+}
+
+body {
+    font-family: sans-serif;
 }
 
 ul {
