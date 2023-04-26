@@ -73,7 +73,8 @@ body {
 
 .pinned-ul {
     margin: 0.2em;
-    border-radius: 4px;
+    border-radius: 6px;
+    padding: 0.2em;
 }
 
 ul {
