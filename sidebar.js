@@ -37,7 +37,6 @@ async function buildTabList() {
   }
 
   pinned.sort((ta, tb) => ta.index - tb.index)
-  others.reverse()
 
   return [renderTabs(pinned, 'pinned-ul'), renderTabs(others, 'others-ul')]
 }
@@ -202,8 +201,6 @@ for (const [name, ev] of Object.entries({
     // console.log(name, x)
     if (name === 'onRemoved' || name === 'onDetached') {
       removeFromPinnedTabs(x)
-    } else if (name === 'onActivated') {
-      setSuccessor()
     }
     refreshPage()
   })
