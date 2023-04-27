@@ -37,6 +37,7 @@ async function buildTabList() {
   }
 
   pinned.sort((ta, tb) => ta.index - tb.index)
+  others.reverse()
 
   return [renderTabs(pinned, 'pinned-ul'), renderTabs(others, 'others-ul')]
 }
