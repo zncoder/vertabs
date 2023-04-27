@@ -82,14 +82,14 @@ function newTab(ev) {
 }
 
 async function pinTab(ev) {
-  let [tab] = await browser.tabs.query({active: true, currentWindow: true})
+  let [t] = await browser.tabs.query({active: true, currentWindow: true})
   if (t.pinned) {
-    await browser.tabs.update(tab.id, {pinned: false})
+    await browser.tabs.update(t.id, {pinned: false})
     refreshPage()
   } else {
-    await browser.tabs.update(tab.id, {pinned: true})
+    await browser.tabs.update(t.id, {pinned: true})
     // move will refresh the page
-    await browser.tabs.move(tab.id, {index: 0})
+    await browser.tabs.move(t.id, {index: 0})
   }
 }
 
