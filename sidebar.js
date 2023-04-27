@@ -2,41 +2,18 @@ const isPopup = window.location.href.endsWith('popup')
 const tabsDiv = document.querySelector('#tabs-div')
 let pinnedUl = document.querySelector('#pinned-ul')
 let othersUl = document.querySelector('#others-ul')
-let pinnedTabs // tab.pinned is not used
-
-function cmpTabs(choice, ta, tb) {
-  let ai = pinnedTabs.findIndex(x => x === ta.id)
-  let bi = pinnedTabs.findIndex(x => x === tb.id)
-  if (ai >= 0 !== bi >= 0) {
-    return ai >= 0 ? -1 : 1
-  } else if (ai >= 0) {
-    return ai - bi
-  } else if (choice === 'last-access') {
-    x = tb.lastAccessed - ta.lastAccessed
-    return x
-  } else if (choice == 'hostname') {
-    let ua = new URL(ta.url)
-    let ub = new URL(tb.url)
-    if (ua.hostname != ub.hostname) {
-      return ua.hostname.localeCompare(ub.hostname)
-    }
-  }
-  return ta.id - tb.id
-}
 
 async function buildTabList() {
   let pinned = []
   let others = []
   let tabs = await browser.tabs.query({currentWindow: true})
   for (let t of tabs) {
-    if (pinnedTabs.find(x => x === t.id)) {
+    if (t.pinned) {
       pinned.push(t)
     } else {
       others.push(t)
     }
   }
-
-  pinned.sort((ta, tb) => ta.index - tb.index)
 
   return [renderTabs(pinned, 'pinned-ul'), renderTabs(others, 'others-ul')]
 }
@@ -67,32 +44,7 @@ function renderTabs(tabs, cls) {
   return ul
 }
 
-async function loadPinnedTabs() {
-  pinnedTabs = []
-  let win = await browser.windows.getCurrent()
-  let key = `w-${win.id}`
-  let obj = await browser.storage.local.get(key)
-  let pinned = obj[key]
-  if (pinned) {
-    pinnedTabs = Array.from(pinned)
-  }
-}
-
-async function savePinnedTabs() {
-  let win = await browser.windows.getCurrent()
-  if (win) {
-    let obj = {}
-    obj[`w-${win.id}`] = pinnedTabs
-    // console.log('save pinned', obj)
-    await browser.storage.local.set(obj)
-  }
-}
-
 async function refreshPage() {
-  if (pinnedTabs === undefined) {
-    await loadPinnedTabs()
-  }
-
   let [pinned, others] = await buildTabList()
   tabsDiv.replaceChild(pinned, pinnedUl)
   pinnedUl = pinned
@@ -129,27 +81,16 @@ function newTab(ev) {
   browser.tabs.create({active: true})
 }
 
-function removeFromPinnedTabs(tid) {
-  let i = pinnedTabs.findIndex(x => x === tid)
-  if (i >= 0) {
-    pinnedTabs.splice(i, 1)
-  }
-}
-
 async function pinTab(ev) {
   let [tab] = await browser.tabs.query({active: true, currentWindow: true})
-  if (pinnedTabs.find(x => x === tab.id)) {
+  if (t.pinned) {
     await browser.tabs.update(tab.id, {pinned: false})
-    await browser.tabs.move(tab.id, {index: pinnedTabs.length})
-    removeFromPinnedTabs(tab.id)
+    refreshPage()
   } else {
     await browser.tabs.update(tab.id, {pinned: true})
-    pinnedTabs.splice(0, 0, tab.id)
+    // move will refresh the page
     await browser.tabs.move(tab.id, {index: 0})
   }
-  savePinnedTabs()
-
-  refreshPage()
 }
 
 async function undoTab(ev) {
@@ -188,8 +129,9 @@ async function dupTab(ev) {
 }
 
 async function onCreated(t) {
-  await browser.tabs.move(t.id, {index: pinnedTabs.length})
-  refreshPage()
+  // move will refresh the page
+  let pinned = await browser.tabs.query({currentWindow: true, pinned: true})
+  await browser.tabs.move(t.id, {index: pinned.length})
 }
 
 browser.tabs.onCreated.addListener(onCreated)
@@ -200,25 +142,10 @@ for (let ev of [
   browser.tabs.onMoved,
   browser.tabs.onReplaced,
   browser.tabs.onUpdated,
+  browser.tabs.onRemoved,
+  browser.tabs.onDetached,
 ]) {
   ev.addListener(refreshPage)
-}
-
-for (let ev of [browser.tabs.onRemoved, browser.tabs.onDetached]) {
-    ev.addListener(x => {
-      removeFromPinnedTabs(x)
-      refreshPage()
-  })
-}
-
-async function setSuccessor() {
-  let tabs = await browser.tabs.query({hidden: false, currentWindow: true})
-  tabs.sort((a, b) => b.lastAccessed - a.lastAccessed)
-  let tids = []
-  for (let x of tabs) {
-    tids.push(x.id)
-  }
-  browser.tabs.moveInSuccession(tids)
 }
 
 refreshPage()
