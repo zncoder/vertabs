@@ -187,22 +187,27 @@ async function dupTab(ev) {
   browser.tabs.duplicate(tab.id)
 }
 
-for (const [name, ev] of Object.entries({
-  'onActivated': browser.tabs.onActivated,
-  'onAttached': browser.tabs.onAttached,
-  'onCreated': browser.tabs.onCreated,
-  'onDetached': browser.tabs.onDetached,
-  'onMoved': browser.tabs.onMoved,
-  'onRemoved': browser.tabs.onRemoved,
-  'onReplaced': browser.tabs.onReplaced,
-  'onUpdated': browser.tabs.onUpdated,
-})) {
-  ev.addListener(x => {
-    // console.log(name, x)
-    if (name === 'onRemoved' || name === 'onDetached') {
+async function onCreated(t) {
+  await browser.tabs.move(t.id, {index: pinnedTabs.length})
+  refreshPage()
+}
+
+browser.tabs.onCreated.addListener(onCreated)
+
+for (let ev of [
+  browser.tabs.onActivated,
+  browser.tabs.onAttached,
+  browser.tabs.onMoved,
+  browser.tabs.onReplaced,
+  browser.tabs.onUpdated,
+]) {
+  ev.addListener(refreshPage)
+}
+
+for (let ev of [browser.tabs.onRemoved, browser.tabs.onDetached]) {
+    ev.addListener(x => {
       removeFromPinnedTabs(x)
-    }
-    refreshPage()
+      refreshPage()
   })
 }
 
