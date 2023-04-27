@@ -25,18 +25,12 @@ function cmpTabs(choice, ta, tb) {
 }
 
 async function buildTabList() {
-  let tabs = await browser.tabs.query({currentWindow: true})
   let pinned = []
   let others = []
-  let news = []
-  let cur
+  let tabs = await browser.tabs.query({currentWindow: true})
   for (let t of tabs) {
     if (pinnedTabs.find(x => x === t.id)) {
       pinned.push(t)
-    } else if (t.title.startsWith('New Tab') && (t.url === 'about:newtab' || t.url.startsWith('moz-extension://'))) {
-      news.push(t)
-    } else if (t.active) {
-      cur = t
     } else {
       others.push(t)
     }
@@ -44,30 +38,6 @@ async function buildTabList() {
 
   pinned.sort((ta, tb) => ta.index - tb.index)
 
-  // let options = await browser.storage.local.get('sortChoice')
-  // let choice = options.sortChoice ? options.sortChoice : 'last-access'
-
-  // place new tabs first
-  if (news.length > 0) {
-    news.sort((ta, tb) => tb.lastAccessed - ta.lastAccessed)
-  }
-  if (others.length > 0) {
-    others.sort((ta, tb) => tb.lastAccessed - ta.lastAccessed)
-  }
-  others.splice(0, 0, ...news)
-  // insert cur to its position, so that it doesn't move
-  if (cur) {
-    let i = cur.index - pinned.length
-    others.splice(i, 0, cur)
-  }
-
-  if (others.length > 0) {
-    let tids = []
-    for (let t of others) {
-      tids.push(t.id)
-    }
-    await browser.tabs.move(tids, {index: pinned.length})
-  }
   return [renderTabs(pinned, 'pinned-ul'), renderTabs(others, 'others-ul')]
 }
 
