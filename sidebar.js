@@ -36,7 +36,9 @@ function renderTabs(tabs, cls) {
     li.innerHTML = `
 <span id='c-${t.id}' class='close-btn' title='close'>&nbsp;⨯&nbsp;</span><span class='tab-lnk' id='t-${t.id}' title='${t.title} - ${t.url}'>${img}${t.title}</span>
 `
-    li.querySelector('.close-btn').onclick = closeThisTab
+    if (innerWidth > 60) {
+      li.querySelector('.close-btn').onclick = closeThisTab
+    }
     li.onclick = focusThisTab
     li.onauxclick = closeThisTab
     ul.appendChild(li)
