@@ -31,6 +31,7 @@
 
     .pinned-ul {
         background-color: #d1cfd7;
+        box-shadow: 1px 1px 4px #555;
     }
 }
 
@@ -64,6 +65,7 @@
 
     .pinned-ul {
         background-color: #1c1b21;
+        box-shadow: 1px 1px 4px #000;
     }
 }
 
@@ -77,9 +79,9 @@ body {
 }
 
 .pinned-ul {
-    margin: 0.2em;
+    margin: 0.2em 0.2em 0.5em 0.2em;
     border-radius: 6px;
-    padding: 0.2em;
+    padding: 0.1em;
 }
 
 ul {

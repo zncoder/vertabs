@@ -15,10 +15,10 @@ async function buildTabList() {
     }
   }
 
-  return [renderTabs(pinned, 'pinned-ul'), renderTabs(others, 'others-ul')]
+  return [renderTabs(pinned, 'pinned-ul', false), renderTabs(others, 'others-ul', true)]
 }
 
-function renderTabs(tabs, cls) {
+function renderTabs(tabs, cls, hasClose) {
   let ul = document.createElement('ul')
   ul.classList.add(cls)
   for (let t of tabs) {
@@ -33,10 +33,16 @@ function renderTabs(tabs, cls) {
     if (t.favIconUrl && !t.favIconUrl.startsWith('chrome://mozapps')) {
       img = `<img src='${t.favIconUrl}' class="favicon"> `
     }
-    li.innerHTML = `
+    if (hasClose) {
+      li.innerHTML = `
 <span id='c-${t.id}' class='close-btn' title='close'>&nbsp;⨯&nbsp;</span><span class='tab-lnk' id='t-${t.id}' title='${t.title} - ${t.url}'>${img}${t.title}</span>
 `
-    li.querySelector('.close-btn').onclick = closeThisTab
+      li.querySelector('.close-btn').onclick = closeThisTab
+    } else {
+            li.innerHTML = `
+&nbsp;&nbsp;<span class='tab-lnk' id='t-${t.id}' title='${t.title} - ${t.url}'>${img}${t.title}</span>
+`
+    }
     li.onclick = focusThisTab
     li.onauxclick = closeThisTab
     ul.appendChild(li)
