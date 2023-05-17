@@ -131,6 +131,7 @@ a {
 #actions-div {
     display: flex;
     justify-content: space-between;
+    flex-wrap: wrap;
     /* border-bottom: 1px solid; */
 }
 
@@ -139,7 +140,7 @@ a {
     margin: auto;
     text-align: center;
     padding: 0;
-    width: 2em;
+    width: 1.5em;
     font-size: large;
 }
 
