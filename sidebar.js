@@ -99,6 +99,11 @@ async function pinTab(ev) {
   }
 }
 
+async function bottomTab(ev) {
+  let [t] = await browser.tabs.query({active: true, currentWindow: true})
+  await browser.tabs.move(t.id, {index: -1})
+}
+
 async function undoTab(ev) {
   let [sess] = await browser.sessions.getRecentlyClosed({maxResults: 1})
   if (sess && sess.tab) {
