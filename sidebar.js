@@ -145,7 +145,21 @@ async function onCreated(t) {
   await browser.tabs.move(t.id, {index: pinned.length})
 }
 
+async function onRemoved(removed) {
+  let tabs = await browser.tabs.query({currentWindow: true})
+  for (let t of tabs) {
+    if (t.id === removed) {
+      // for whatever reason, the current tab that is removed by "Close Tab"
+      // or the keyboard shortcut can be still in tabs.
+      // retry after 30ms
+      setTimeout(() => onRemoved(removed), 30)
+    }
+  }
+  refreshPage()
+}
+
 browser.tabs.onCreated.addListener(onCreated)
+browser.tabs.onRemoved.addListener(onRemoved)
 
 for (let ev of [
   browser.tabs.onActivated,
@@ -153,7 +167,6 @@ for (let ev of [
   browser.tabs.onMoved,
   browser.tabs.onReplaced,
   browser.tabs.onUpdated,
-  browser.tabs.onRemoved,
   browser.tabs.onDetached,
 ]) {
   ev.addListener(refreshPage)
