@@ -21,12 +21,14 @@
     }
 
     .action-btn {
-        background-color: #e5e8ea;
+        background-color: #dbddde;
         color: black;
     }
 
     #actions-div {
+        background-color: #dbddde;
         /* border-bottom-color: #c0c0c0; */
+        box-shadow: 1px 1px 2px #555;
     }
 
     .pinned-ul {
@@ -54,13 +56,14 @@
     }
 
     .action-btn {
-        background-color: #282a35;
+        background-color: #22232c;
         color: white;
     }
 
     #actions-div {
         /* border-bottom-color: #c0c0c0; */
-        background-color: #282a35;
+        background-color: #22232c;
+        box-shadow: 1px 1px 2px #000;
     }
 
     .pinned-ul {
@@ -71,12 +74,18 @@
 
 html, body {
     max-width: 100%;
-    overflow-x: hidden;
+    /* overflow-x: hidden; */
     scrollbar-width: none;
 }
 
 body::-webkit-scrollbar {
     display: none;
+}
+
+#actions-div {
+    position: sticky;
+    top: 0px;
+    overflow-x: hidden;
 }
 
 body {
