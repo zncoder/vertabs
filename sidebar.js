@@ -139,6 +139,22 @@ async function dupTab(ev) {
   browser.tabs.duplicate(tab.id)
 }
 
+async function groupTabs(ev) {
+  let tabs = await browser.tabs.query({currentWindow: true, pinned: false})
+  tabs.sort((a, b) => {
+    let hosta = new URL(a.url).hostname.replace(/^www\./, '')
+    let hostb = new URL(b.url).hostname.replace(/^www\./, '')
+    if (hosta < hostb) {
+      return -1
+    } else if (hosta > hostb) {
+      return 1
+    }
+    return a.index - b.index
+  })
+  let tids = tabs.map(t => t.id)
+  await browser.tabs.move(tids, {index: -1})
+}
+
 async function onCreated(t) {
   // move will refresh the page
   let pinned = await browser.tabs.query({currentWindow: true, pinned: true})

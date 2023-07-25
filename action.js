@@ -7,4 +7,5 @@ document.querySelector('#bottom-btn').onclick = bottomTab
 document.querySelector('#detach-btn').onclick = detachTab
 document.querySelector('#undo-btn').onclick = undoTab
 // document.querySelector('#close-cur-btn').onclick = closeCurTab
-document.querySelector('#hide-sidebar-btn').onclick = hideSidebar
+// document.querySelector('#hide-sidebar-btn').onclick = hideSidebar
+document.querySelector('#group-btn').onclick = groupTabs
