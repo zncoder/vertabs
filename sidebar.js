@@ -18,6 +18,12 @@ async function buildTabList() {
   return [renderTabs(pinned, 'pinned-ul', false), renderTabs(others, 'others-ul', true)]
 }
 
+function stripHTMLTags(s) {
+  let el = document.createElement('div')
+  el.innerHTML = s
+  return el.textContent
+}
+
 function renderTabs(tabs, cls, hasClose) {
   let ul = document.createElement('ul')
   ul.classList.add(cls)
@@ -34,8 +40,9 @@ function renderTabs(tabs, cls, hasClose) {
       img = `<img src='${t.favIconUrl}' class="favicon"> `
     }
     if (hasClose) {
+      let title = stripHTMLTags(t.title)
       li.innerHTML = `
-<span id='c-${t.id}' class='close-btn' title='close'>&nbsp;⨯&nbsp;</span><span class='tab-lnk' id='t-${t.id}' title='${t.title} - ${t.url}'>${img}${t.title}</span>
+<span id='c-${t.id}' class='close-btn' title='close'>&nbsp;⨯&nbsp;</span><span class='tab-lnk' id='t-${t.id}' title='${title} - ${t.url}'>${img}${title}</span>
 `
       li.querySelector('.close-btn').onclick = closeThisTab
     } else {
