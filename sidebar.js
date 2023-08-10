@@ -81,6 +81,20 @@ function closeTab(tid) {
   browser.tabs.remove([tid])
 }
 
+async function prevTab(ev) {
+  ev.preventDefault()
+  let tabs = await browser.tabs.query({currentWindow: true})
+  let prev = null
+  for (let t of tabs) {
+    if (!t.active && (!prev || prev.lastAccessed < t.lastAccessed)) {
+      prev = t
+    }
+  }
+  if (prev) {
+    browser.tabs.update(prev.id, {active: true})
+  }
+}
+
 function focusThisTab(ev) {
   ev.preventDefault()
   let tid = getTabId(ev)
