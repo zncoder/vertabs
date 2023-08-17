@@ -109,15 +109,33 @@ function newTab(ev) {
 }
 
 async function stickTab(ev) {
-  let [t] = await browser.tabs.query({active: true, currentWindow: true})
-  if (!t.autoDiscardable) {
-    await browser.tabs.update(t.id, {autoDiscardable: true})
-    refreshPage()
-  } else {
-    await browser.tabs.update(t.id, {autoDiscardable: false})
-    // move will refresh the page
-    await browser.tabs.move(t.id, {index: 0})
+  let tabs = await browser.tabs.query({currentWindow: true})
+  let numSticky = 0
+  let cur = null
+  for (let t of tabs) {
+    if (t.active) {
+      cur = t
+    }
+    if (!t.autoDiscardable) {
+      numSticky++
+    }
   }
+  if (!cur) {
+    console.log('cannot find active tab', tabs)
+    return
+  }
+
+  if (!cur.autoDiscardable) {
+    // sticky -> non-sticky
+    await browser.tabs.update(cur.id, {autoDiscardable: true})
+    // place behind sticky tabs
+    await browser.tabs.move(cur.id, {index: numSticky-1})
+  } else {
+    // non-sticky -> sticky
+    await browser.tabs.update(cur.id, {autoDiscardable: false})
+    await browser.tabs.move(cur.id, {index: 0})
+  }
+  // move will refresh the page
 }
 
 async function bottomTab(ev) {
