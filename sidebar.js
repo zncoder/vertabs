@@ -1,21 +1,21 @@
 const isPopup = window.location.href.endsWith('popup')
 const tabsDiv = document.querySelector('#tabs-div')
-let pinnedUl = document.querySelector('#pinned-ul')
+let stickyUl = document.querySelector('#sticky-ul')
 let othersUl = document.querySelector('#others-ul')
 
 async function buildTabList() {
-  let pinned = []
+  let sticky = []
   let others = []
   let tabs = await browser.tabs.query({currentWindow: true})
   for (let t of tabs) {
-    if (t.pinned) {
-      pinned.push(t)
+    if (!t.autoDiscardable) {
+      sticky.push(t)
     } else {
       others.push(t)
     }
   }
 
-  return [renderTabs(pinned, 'pinned-ul', false), renderTabs(others, 'others-ul', true)]
+  return [renderTabs(sticky, 'sticky-ul', false), renderTabs(others, 'others-ul', true)]
 }
 
 function stripHTMLTags(s) {
@@ -58,9 +58,9 @@ function renderTabs(tabs, cls, hasClose) {
 }
 
 async function refreshPage() {
-  let [pinned, others] = await buildTabList()
-  tabsDiv.replaceChild(pinned, pinnedUl)
-  pinnedUl = pinned
+  let [sticky, others] = await buildTabList()
+  tabsDiv.replaceChild(sticky, stickyUl)
+  stickyUl = sticky
   tabsDiv.replaceChild(others, othersUl)
   othersUl = others
 }
@@ -108,13 +108,13 @@ function newTab(ev) {
   browser.tabs.create({active: true})
 }
 
-async function pinTab(ev) {
+async function stickTab(ev) {
   let [t] = await browser.tabs.query({active: true, currentWindow: true})
-  if (t.pinned) {
-    await browser.tabs.update(t.id, {pinned: false})
+  if (!t.autoDiscardable) {
+    await browser.tabs.update(t.id, {autoDiscardable: true})
     refreshPage()
   } else {
-    await browser.tabs.update(t.id, {pinned: true})
+    await browser.tabs.update(t.id, {autoDiscardable: false})
     // move will refresh the page
     await browser.tabs.move(t.id, {index: 0})
   }
@@ -161,7 +161,7 @@ async function dupTab(ev) {
 }
 
 async function groupTabs(ev) {
-  let tabs = await browser.tabs.query({currentWindow: true, pinned: false})
+  let tabs = await browser.tabs.query({currentWindow: true, autoDiscardable: true})
   tabs.sort((a, b) => {
     let hosta = new URL(a.url).hostname.replace(/^www\./, '')
     let hostb = new URL(b.url).hostname.replace(/^www\./, '')
@@ -178,8 +178,15 @@ async function groupTabs(ev) {
 
 async function onCreated(t) {
   // move will refresh the page
-  let pinned = await browser.tabs.query({currentWindow: true, pinned: true})
-  await browser.tabs.move(t.id, {index: pinned.length})
+  let sticky = await browser.tabs.query({currentWindow: true, autoDiscardable: false})
+  await browser.tabs.move(t.id, {index: sticky.length})
+}
+
+async function unpinAll() {
+  let pinned = await browser.tabs.query({pinned: true})
+  for (let t of pinned) {
+    await browser.tabs.update(t.id, {'pinned': false})
+  }
 }
 
 async function onRemoved(removed) {
@@ -209,4 +216,5 @@ for (let ev of [
   ev.addListener(refreshPage)
 }
 
+unpinAll()
 refreshPage()

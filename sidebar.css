@@ -4,7 +4,7 @@
         color: black;
     }
 
-    .last-pin-tab {
+    .last-sticky-tab {
         border-bottom-color: #c0c0c0;
     }
 
@@ -31,7 +31,7 @@
         box-shadow: 1px 1px 2px #555;
     }
 
-    .pinned-ul {
+    .sticky-ul {
         background-color: #d1cfd7;
         box-shadow: 1px 1px 4px #555;
     }
@@ -66,7 +66,7 @@
         box-shadow: 1px 1px 2px #000;
     }
 
-    .pinned-ul {
+    .sticky-ul {
         background-color: #1c1b21;
         box-shadow: 1px 1px 4px #000;
     }
@@ -92,7 +92,7 @@ body {
     font-family: sans-serif;
 }
 
-.pinned-ul {
+.sticky-ul {
     margin: 0.2em 0.2em 0.5em 0.2em;
     border-radius: 6px;
     padding: 0.1em;
@@ -110,7 +110,7 @@ li {
     padding: 0.3em 0 0.3em 0;
 }
 
-.last-pin-tab {
+.last-sticky-tab {
     border-bottom: 1px solid;
 }
 
@@ -162,7 +162,7 @@ a {
     float: left;
 }
 
-#undo-btn, #pin-btn {
+#undo-btn, #sticky-btn {
     float: right;
 }
 
