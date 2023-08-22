@@ -15,7 +15,27 @@ async function buildTabList() {
     }
   }
 
+  // await ensureStickyTabsIndex(sticky)
+
   return [renderTabs(sticky, 'sticky-ul', false), renderTabs(others, 'others-ul', true)]
+}
+
+async function ensureStickyTabsIndex(sticky) {
+  console.trace('ensure sticky', sticky.map(x => [x.id, x.index]))
+  let inOrder = true
+  let tids = []
+  for (let i = 0; i < sticky.length; i++) {
+    if (i !== sticky[i].index) {
+      inOrder = false
+    }
+    tids.push(sticky[i].id)
+  }
+  if (inOrder) {
+    return
+  }
+
+  console.log('ensure', tids)
+  await browser.tabs.move(tids, {index: 0})
 }
 
 function stripHTMLTags(s) {
@@ -222,17 +242,12 @@ async function onRemoved(removed) {
 
 browser.tabs.onCreated.addListener(onCreated)
 browser.tabs.onRemoved.addListener(onRemoved)
-
-for (let ev of [
-  browser.tabs.onActivated,
-  browser.tabs.onAttached,
-  browser.tabs.onMoved,
-  browser.tabs.onReplaced,
-  browser.tabs.onUpdated,
-  browser.tabs.onDetached,
-]) {
-  ev.addListener(refreshPage)
-}
+browser.tabs.onActivated.addListener(refreshPage)
+browser.tabs.onAttached.addListener(refreshPage)
+browser.tabs.onReplaced.addListener(refreshPage)
+browser.tabs.onUpdated.addListener(refreshPage)
+browser.tabs.onDetached.addListener(refreshPage)
+browser.tabs.onMoved.addListener(refreshPage)
 
 unpinAll()
 refreshPage()
