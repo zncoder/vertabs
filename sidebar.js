@@ -15,13 +15,11 @@ async function buildTabList() {
     }
   }
 
-  // await ensureStickyTabsIndex(sticky)
-
   return [renderTabs(sticky, 'sticky-ul', false), renderTabs(others, 'others-ul', true)]
 }
 
-async function ensureStickyTabsIndex(sticky) {
-  console.trace('ensure sticky', sticky.map(x => [x.id, x.index]))
+async function ensureStickyTabsIndex() {
+  let sticky = await browser.tabs.query({currentWindow: true, autoDiscardable: false})
   let inOrder = true
   let tids = []
   for (let i = 0; i < sticky.length; i++) {
@@ -34,7 +32,6 @@ async function ensureStickyTabsIndex(sticky) {
     return
   }
 
-  console.log('ensure', tids)
   await browser.tabs.move(tids, {index: 0})
 }
 
@@ -154,8 +151,8 @@ async function stickTab(ev) {
     // non-sticky -> sticky
     await browser.tabs.update(cur.id, {autoDiscardable: false})
     await browser.tabs.move(cur.id, {index: 0})
+    await ensureStickyTabsIndex()
   }
-  // move will refresh the page
 }
 
 async function bottomTab(ev) {
