@@ -212,9 +212,9 @@ async function groupTabs(ev) {
 }
 
 async function onCreated(t) {
-  // move will refresh the page
   let sticky = await browser.tabs.query({currentWindow: true, autoDiscardable: false})
   await browser.tabs.move(t.id, {index: sticky.length})
+  await ensureStickyTabsIndex()
 }
 
 async function unpinAll() {
