@@ -78,6 +78,10 @@ async function refreshPage() {
   let [sticky, others] = await buildTabList()
   tabsDiv.replaceChild(sticky, stickyUl)
   stickyUl = sticky
+  if (stickyUl.childElementCount === 0) {
+    stickyUl.classList.add('hidden')
+  }
+
   tabsDiv.replaceChild(others, othersUl)
   othersUl = others
 }
