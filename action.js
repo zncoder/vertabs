@@ -10,3 +10,5 @@ document.querySelector('#undo-btn').onclick = undoTab
 // document.querySelector('#hide-sidebar-btn').onclick = hideSidebar
 document.querySelector('#prevtab-btn').onclick = prevTab
 document.querySelector('#group-btn').onclick = groupTabs
+document.querySelector('#zoom-btn').onclick = zoomPage
+document.querySelector('#archiveorg-btn').onclick = archiveOrgPage

@@ -215,6 +215,28 @@ async function groupTabs(ev) {
   await browser.tabs.move(tids, {index: -1})
 }
 
+async function zoomPage(ev) {
+  let level = await browser.tabs.getZoom()
+  level += 0.2
+  if (level > 2) {
+    level = 0
+  }
+  await browser.tabs.setZoom(level)
+}
+
+async function archiveOrgPage(ev) {
+  const archive = 'https://web.archive.org'
+  let [tab] = await browser.tabs.query({active: true, currentWindow: true})
+  let url = tab.url
+  if (url.startsWith(archive)) {
+    let i = url.lastIndexOf('https://')
+    url = url.substring(i)
+  } else {
+    url = `https://web.archive.org/${url}`
+  }
+  await browser.tabs.update({url: url})
+}
+
 async function onCreated(t) {
   let sticky = await browser.tabs.query({currentWindow: true, autoDiscardable: false})
   await browser.tabs.move(t.id, {index: sticky.length})
