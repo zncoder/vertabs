@@ -196,7 +196,11 @@ async function replaceTab(ev) {
 
 async function dupTab(ev) {
   let [tab] = await browser.tabs.query({active: true, currentWindow: true})
-  browser.tabs.duplicate(tab.id)
+  let newTab = await browser.tabs.duplicate(tab.id)
+  if (tab.autoDiscardable) {
+    // put duplicate next to the tab
+    await browser.tabs.move(newTab.id, {index: tab.index})
+  }
 }
 
 async function groupTabs(ev) {
