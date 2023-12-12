@@ -1,12 +1,13 @@
 {
   "name": "vertabs",
-  "version": "1.29.1",
+  "version": "1.30.0",
   "manifest_version": 2,
   "description": "Show tabs vertically in sidebar",
   "permissions": [
     "sessions",
     "storage",
     "contextMenus",
+    "clipboardRead",
     "tabs"
   ],
   "icons": {

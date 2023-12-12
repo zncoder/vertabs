@@ -129,6 +129,14 @@ function newTab(ev) {
   browser.tabs.create({active: true})
 }
 
+async function newTabWithUrl(ev) {
+  let url = await navigator.clipboard.readText()
+  console.log('url', url)
+  if (url.startsWith("https://") || url.startsWith("http://")) {
+    await browser.tabs.create({active: true, url: url})
+  }
+}
+
 async function stickTab(ev) {
   let tabs = await browser.tabs.query({currentWindow: true})
   let numSticky = 0

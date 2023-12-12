@@ -12,3 +12,4 @@ document.querySelector('#prevtab-btn').onclick = prevTab
 document.querySelector('#group-btn').onclick = groupTabs
 document.querySelector('#zoom-btn').onclick = zoomPage
 document.querySelector('#archiveorg-btn').onclick = archiveOrgPage
+document.querySelector('#paste-btn').onclick = newTabWithUrl
