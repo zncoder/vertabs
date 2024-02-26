@@ -4,6 +4,11 @@ let stickyUl = document.querySelector('#sticky-ul')
 let othersUl = document.querySelector('#others-ul')
 
 async function buildTabList() {
+	let [sticky, others] = await ensureStickyTabsIndex()
+	return [renderTabs(sticky, 'sticky-ul', false), renderTabs(others, 'others-ul', true)]
+}
+
+async function listTab() {
 	let sticky = []
 	let others = []
 	let tabs = await browser.tabs.query({currentWindow: true})
@@ -14,25 +19,33 @@ async function buildTabList() {
 			others.push(t)
 		}
 	}
+	return [sticky, others]
+}
 
-	return [renderTabs(sticky, 'sticky-ul', false), renderTabs(others, 'others-ul', true)]
+async function fixTabIndex(tabs, base) {
+	let inOrder = true
+	let tids = []
+	for (let i = 0; i < tabs.length; i++) {
+		if (i !== tabs[i].index) {
+			inOrder = false
+		}
+		tids.push(tabs[i].id)
+	}
+	if (!inOrder) {
+		await browser.tabs.move(tids, {index: base})
+	}
 }
 
 async function ensureStickyTabsIndex() {
-	let sticky = await browser.tabs.query({currentWindow: true, autoDiscardable: false})
-	let inOrder = true
-	let tids = []
-	for (let i = 0; i < sticky.length; i++) {
-		if (i !== sticky[i].index) {
-			inOrder = false
-		}
-		tids.push(sticky[i].id)
+	let [sticky, others] = await listTab()
+	try {
+		browser.tabs.onMoved.removeListener(refreshPage)
+		await fixTabIndex(sticky, 0)
+		await fixTabIndex(others, sticky.length)
+	} finally {
+		browser.tabs.onMoved.addListener(refreshPage)
 	}
-	if (inOrder) {
-		return
-	}
-
-	await browser.tabs.move(tids, {index: 0})
+	return [sticky, others]
 }
 
 function stripHTMLTags(s) {
