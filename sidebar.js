@@ -3,11 +3,6 @@ const tabsDiv = document.querySelector('#tabs-div')
 let stickyUl = document.querySelector('#sticky-ul')
 let othersUl = document.querySelector('#others-ul')
 
-async function buildTabList() {
-	let [sticky, others] = await ensureStickyTabsIndex()
-	return [renderTabs(sticky, 'sticky-ul', false), renderTabs(others, 'others-ul', true)]
-}
-
 async function listTab() {
 	let sticky = []
 	let others = []
@@ -88,15 +83,23 @@ function renderTabs(tabs, cls, hasClose) {
 }
 
 async function refreshPage() {
-	let [sticky, others] = await buildTabList()
-	tabsDiv.replaceChild(sticky, stickyUl)
-	stickyUl = sticky
+	let [sticky, others] = await listTab()
+	await withNoListener(async () => {
+		await fixTabIndex(sticky, 0)
+		await fixTabIndex(others, sticky.length)
+	})
+
+	let newStickyUI = renderTabs(sticky, 'sticky-ul', false)
+	let newOthersUI = renderTabs(others, 'others-ul', true)
+
+	tabsDiv.replaceChild(newStickyUI, stickyUl)
+	stickyUl = newStickyUI
 	if (stickyUl.childElementCount === 0) {
 		stickyUl.classList.add('hidden')
 	}
 
-	tabsDiv.replaceChild(others, othersUl)
-	othersUl = others
+	tabsDiv.replaceChild(newOthersUI, othersUl)
+	othersUl = newOthersUI
 }
 
 function getTabId(ev) {
@@ -280,9 +283,8 @@ async function archiveOrgPage(ev) {
 }
 
 async function onCreated(t) {
-	let sticky = await browser.tabs.query({currentWindow: true, autoDiscardable: false})
-	await browser.tabs.move(t.id, {index: sticky.length})
-	await ensureStickyTabsIndex()
+	console.log('create tab', t.index)
+	await onChange()
 }
 
 async function unpinAll() {
@@ -305,31 +307,44 @@ async function onRemoved(removed) {
 	refreshPage()
 }
 
+async function withNoListener(async_fn) {
+	disableListener()
+	try {
+		await async_fn()
+	} finally {
+		enableListener()
+	}
+}
+
+async function onChange() {
+	await withNoListener(refreshPage)
+}
+
 function enableListener() {
 	browser.tabs.onCreated.addListener(onCreated)
 	browser.tabs.onRemoved.addListener(onRemoved)
-	browser.tabs.onActivated.addListener(refreshPage)
-	browser.tabs.onAttached.addListener(refreshPage)
-	browser.tabs.onReplaced.addListener(refreshPage)
-	browser.tabs.onUpdated.addListener(refreshPage)
-	browser.tabs.onDetached.addListener(refreshPage)
-	browser.tabs.onMoved.addListener(refreshPage)
+	browser.tabs.onActivated.addListener(onChange)
+	browser.tabs.onAttached.addListener(onChange)
+	browser.tabs.onReplaced.addListener(onChange)
+	browser.tabs.onUpdated.addListener(onChange)
+	browser.tabs.onDetached.addListener(onChange)
+	browser.tabs.onMoved.addListener(onChange)
 }
 
 function disableListener() {
 	browser.tabs.onCreated.addListener(onCreated)
 	browser.tabs.onRemoved.addListener(onRemoved)
-	browser.tabs.onActivated.addListener(refreshPage)
-	browser.tabs.onAttached.addListener(refreshPage)
-	browser.tabs.onReplaced.addListener(refreshPage)
-	browser.tabs.onUpdated.addListener(refreshPage)
-	browser.tabs.onDetached.addListener(refreshPage)
-	browser.tabs.onMoved.addListener(refreshPage)
+	browser.tabs.onActivated.addListener(onChange)
+	browser.tabs.onAttached.addListener(onChange)
+	browser.tabs.onReplaced.addListener(onChange)
+	browser.tabs.onUpdated.addListener(onChange)
+	browser.tabs.onDetached.addListener(onChange)
+	browser.tabs.onMoved.addListener(onChange)
 }
 
 async function init() {
-	await	unpinAll()
-	await refreshPage()
+	await unpinAll()
+	await onChange()
 	enableListener()
 }
 
