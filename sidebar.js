@@ -39,11 +39,11 @@ async function fixTabIndex(tabs, base) {
 async function ensureStickyTabsIndex() {
 	let [sticky, others] = await listTab()
 	try {
-		browser.tabs.onMoved.removeListener(refreshPage)
+		disableListener()
 		await fixTabIndex(sticky, 0)
 		await fixTabIndex(others, sticky.length)
 	} finally {
-		browser.tabs.onMoved.addListener(refreshPage)
+		enableListener()
 	}
 	return [sticky, others]
 }
@@ -305,14 +305,32 @@ async function onRemoved(removed) {
 	refreshPage()
 }
 
-browser.tabs.onCreated.addListener(onCreated)
-browser.tabs.onRemoved.addListener(onRemoved)
-browser.tabs.onActivated.addListener(refreshPage)
-browser.tabs.onAttached.addListener(refreshPage)
-browser.tabs.onReplaced.addListener(refreshPage)
-browser.tabs.onUpdated.addListener(refreshPage)
-browser.tabs.onDetached.addListener(refreshPage)
-browser.tabs.onMoved.addListener(refreshPage)
+function enableListener() {
+	browser.tabs.onCreated.addListener(onCreated)
+	browser.tabs.onRemoved.addListener(onRemoved)
+	browser.tabs.onActivated.addListener(refreshPage)
+	browser.tabs.onAttached.addListener(refreshPage)
+	browser.tabs.onReplaced.addListener(refreshPage)
+	browser.tabs.onUpdated.addListener(refreshPage)
+	browser.tabs.onDetached.addListener(refreshPage)
+	browser.tabs.onMoved.addListener(refreshPage)
+}
 
-unpinAll()
-refreshPage()
+function disableListener() {
+	browser.tabs.onCreated.addListener(onCreated)
+	browser.tabs.onRemoved.addListener(onRemoved)
+	browser.tabs.onActivated.addListener(refreshPage)
+	browser.tabs.onAttached.addListener(refreshPage)
+	browser.tabs.onReplaced.addListener(refreshPage)
+	browser.tabs.onUpdated.addListener(refreshPage)
+	browser.tabs.onDetached.addListener(refreshPage)
+	browser.tabs.onMoved.addListener(refreshPage)
+}
+
+async function init() {
+	await	unpinAll()
+	await refreshPage()
+	enableListener()
+}
+
+init()
