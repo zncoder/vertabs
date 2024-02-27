@@ -180,10 +180,9 @@ async function stickTab(ev) {
 	}
 }
 
-async function upTab(ev) {
+async function bottomTab(ev) {
 	let [t] = await browser.tabs.query({active: true, currentWindow: true})
-	let [sticky, others] = await listTab()
-	await browser.tabs.move(t.id, {index: sticky.length})
+	await browser.tabs.move(t.id, {index: -1})
 }
 
 async function undoTab(ev) {
