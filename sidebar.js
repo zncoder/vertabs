@@ -141,36 +141,24 @@ async function newTabWithUrl(ev) {
 	}
 }
 
-function findTabIndex(tabs, t) {
-	for (let i = 0; i < tabs.length; i++) {
-		if (tabs[i].id === t.id) {
-			return i;
-		}
-	}
-	return -1;
-}
-
 async function stickTab(ev) {
 	let [sticky, others] = await listTab()
 	let [cur] = await browser.tabs.query({active: true, currentWindow: true})
-	let y = !cur.autoDiscardable
-	if (y) {
-		// sticky -> non-sticky
-		let i = findTabIndex(sticky, cur)
-		sticky.splice(i, 1)
-		others.splice(0, 0, cur)
-	} else {
+	if (cur.autoDiscardable) {
 		// non-sticky -> sticky
-		let i = findTabIndex(others, cur)
-		others.splice(i, 1)
-		sticky.splice(0, 0, cur)
+		await withNoListener(async () => {
+			await browser.tabs.update(cur.id, {autoDiscardable: false})
+			await browser.tabs.move(cur.id, {index: 0})
+		})
+	} else {
+		// stickey -> non-sticky
+		await withNoListener(async () => {
+			await browser.tabs.update(cur.id, {autoDiscardable: true})
+			await browser.tabs.move(cur.id, {index: sticky.length-1})
+		})
 	}
 
-	await withNoListener(async () => {
-		await browser.tabs.update(cur.id, {autoDiscardable: y})
-		await fixTabIndex(sticky, 0)
-		await fixTabIndex(others, sticky.length)
-	})
+	await onChanged()
 }
 
 async function bottomTab(ev) {
@@ -211,10 +199,10 @@ async function replaceTab(ev) {
 async function dupTab(ev) {
 	let [tab] = await browser.tabs.query({active: true, currentWindow: true})
 	let newTab = await browser.tabs.duplicate(tab.id, {active: false})
-	if (tab.autoDiscardable) {
-		// put duplicate next to the tab
-		await browser.tabs.move(newTab.id, {index: tab.index})
-	}
+	// if (tab.autoDiscardable) {
+	// 	// put duplicate next to the tab
+	// 	await browser.tabs.move(newTab.id, {index: tab.index})
+	// }
 }
 
 async function groupTabs(ev) {
@@ -274,7 +262,9 @@ async function archiveOrgPage(ev) {
 
 async function onCreated(t) {
 	console.log('create tab', t.index)
-	await onChange()
+	let [sticky, others] = await listTab()
+
+	await onChanged()
 }
 
 async function unpinAll() {
