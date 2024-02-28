@@ -31,18 +31,6 @@ async function fixTabIndex(tabs, base) {
 	}
 }
 
-async function ensureStickyTabsIndex() {
-	let [sticky, others] = await listTab()
-	try {
-		disableListener()
-		await fixTabIndex(sticky, 0)
-		await fixTabIndex(others, sticky.length)
-	} finally {
-		enableListener()
-	}
-	return [sticky, others]
-}
-
 function stripHTMLTags(s) {
 	let el = document.createElement('div')
 	el.innerHTML = s
@@ -153,34 +141,36 @@ async function newTabWithUrl(ev) {
 	}
 }
 
-async function stickTab(ev) {
-	let tabs = await browser.tabs.query({currentWindow: true})
-	let numSticky = 0
-	let cur = null
-	for (let t of tabs) {
-		if (t.active) {
-			cur = t
-		}
-		if (!t.autoDiscardable) {
-			numSticky++
+function findTabIndex(tabs, t) {
+	for (let i = 0; i < tabs.length; i++) {
+		if (tabs[i].id === t.id) {
+			return i;
 		}
 	}
-	if (!cur) {
-		console.log('cannot find active tab', tabs)
-		return
-	}
+	return -1;
+}
 
-	if (!cur.autoDiscardable) {
+async function stickTab(ev) {
+	let [sticky, others] = await listTab()
+	let [cur] = await browser.tabs.query({active: true, currentWindow: true})
+	let y = !cur.autoDiscardable
+	if (y) {
 		// sticky -> non-sticky
-		await browser.tabs.update(cur.id, {autoDiscardable: true})
-		// place behind sticky tabs
-		await browser.tabs.move(cur.id, {index: numSticky-1})
+		let i = findTabIndex(sticky, cur)
+		sticky.splice(i, 1)
+		others.splice(0, 0, cur)
 	} else {
 		// non-sticky -> sticky
-		await browser.tabs.update(cur.id, {autoDiscardable: false})
-		await browser.tabs.move(cur.id, {index: 0})
-		await ensureStickyTabsIndex()
+		let i = findTabIndex(others, cur)
+		others.splice(i, 1)
+		sticky.splice(0, 0, cur)
 	}
+
+	await withNoListener(async () => {
+		await browser.tabs.update(cur.id, {autoDiscardable: y})
+		await fixTabIndex(sticky, 0)
+		await fixTabIndex(others, sticky.length)
+	})
 }
 
 async function bottomTab(ev) {
@@ -304,7 +294,7 @@ async function onRemoved(removed) {
 			setTimeout(() => onRemoved(removed), 30)
 		}
 	}
-	refreshPage()
+	onChanged()
 }
 
 async function withNoListener(async_fn) {
