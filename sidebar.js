@@ -7,6 +7,7 @@ async function listTab() {
 	let sticky = []
 	let others = []
 	let tabs = await browser.tabs.query({currentWindow: true})
+	console.log('all tabs', tabs.length, tabs)
 	for (let t of tabs) {
 		if (!t.autoDiscardable) {
 			sticky.push(t)
@@ -72,10 +73,9 @@ function renderTabs(tabs, cls, hasClose) {
 
 async function refreshPage() {
 	let [sticky, others] = await listTab()
-	await withNoListener(async () => {
-		await fixTabIndex(sticky, 0)
-		await fixTabIndex(others, sticky.length)
-	})
+	console.log('refreshpage sticky', sticky, 'others', others)
+	await fixTabIndex(sticky, 0)
+	await fixTabIndex(others, sticky.length)
 
 	let newStickyUI = renderTabs(sticky, 'sticky-ul', false)
 	let newOthersUI = renderTabs(others, 'others-ul', true)
@@ -144,21 +144,19 @@ async function newTabWithUrl(ev) {
 async function stickTab(ev) {
 	let [sticky, others] = await listTab()
 	let [cur] = await browser.tabs.query({active: true, currentWindow: true})
+	disableListener()
 	if (cur.autoDiscardable) {
 		// non-sticky -> sticky
-		await withNoListener(async () => {
-			await browser.tabs.update(cur.id, {autoDiscardable: false})
-			await browser.tabs.move(cur.id, {index: 0})
-		})
+		await browser.tabs.update(cur.id, {autoDiscardable: false})
+		await browser.tabs.move(cur.id, {index: 0})
 	} else {
 		// stickey -> non-sticky
-		await withNoListener(async () => {
-			await browser.tabs.update(cur.id, {autoDiscardable: true})
-			await browser.tabs.move(cur.id, {index: sticky.length-1})
-		})
+		await browser.tabs.update(cur.id, {autoDiscardable: true})
+		await browser.tabs.move(cur.id, {index: sticky.length-1})
 	}
 
-	await onChanged()
+	await refreshPage()
+	enableListener()
 }
 
 async function bottomTab(ev) {
@@ -197,12 +195,10 @@ async function replaceTab(ev) {
 }
 
 async function dupTab(ev) {
+	let [sticky, others] = await listTab()
 	let [tab] = await browser.tabs.query({active: true, currentWindow: true})
-	let newTab = await browser.tabs.duplicate(tab.id, {active: false})
-	// if (tab.autoDiscardable) {
-	// 	// put duplicate next to the tab
-	// 	await browser.tabs.move(newTab.id, {index: tab.index})
-	// }
+	let index = tab.autoDiscardable ? tab.index : sticky.length
+	await browser.tabs.duplicate(tab.id, {active: false, index: index})
 }
 
 async function groupTabs(ev) {
@@ -260,11 +256,30 @@ async function archiveOrgPage(ev) {
 	await browser.tabs.update({url: url})
 }
 
-async function onCreated(t) {
-	console.log('create tab', t.index)
-	let [sticky, others] = await listTab()
+function removeTab(tabs, t) {
+	for (let i = 0; i < tabs.length; i++) {
+		if (tabs[i].id === t.id) {
+			tabs.splice(i, 1)
+			return true
+		}
+	}
+	return false
+}
 
-	await onChanged()
+async function onCreated(t) {
+	console.log('create tab', t.index, t.openerTabId)
+	if (t.openerTabId) {
+		return
+	}
+
+	disableListener()
+	let [sticky, others] = await listTab()
+	if (removeTab(others, t)) {
+		others.splice(0, 0, t)
+		await fixTabIndex(others, sticky.length)
+		await refreshPage()
+	}
+	enableListener()
 }
 
 async function unpinAll() {
@@ -285,15 +300,6 @@ async function onRemoved(removed) {
 		}
 	}
 	await onChanged()
-}
-
-async function withNoListener(async_fn) {
-	disableListener()
-	try {
-		await async_fn()
-	} finally {
-		enableListener()
-	}
 }
 
 async function onActivated() {
@@ -327,7 +333,9 @@ async function onMoved() {
 }
 
 async function onChanged() {
-	await withNoListener(refreshPage)
+	disableListener()
+	await refreshPage()
+	enableListener()
 }
 
 function enableListener() {
