@@ -294,7 +294,7 @@ async function onRemoved(removed) {
 			setTimeout(() => onRemoved(removed), 30)
 		}
 	}
-	onChanged()
+	await onChanged()
 }
 
 async function withNoListener(async_fn) {
@@ -306,35 +306,65 @@ async function withNoListener(async_fn) {
 	}
 }
 
-async function onChange() {
+async function onActivated() {
+	console.log('activated')
+	await onChanged()
+}
+
+async function onAttached() {
+	console.log('attached')
+	await onChanged()
+}
+
+async function onReplaced() {
+	console.log('replaced')
+	await onChanged()
+}
+
+async function onUpdated() {
+	console.log('updated')
+	await onChanged()
+}
+
+async function onDetached() {
+	console.log('detached')
+	await onChanged()
+}
+
+async function onMoved() {
+	console.log('moved')
+	await onChanged()
+}
+
+async function onChanged() {
 	await withNoListener(refreshPage)
 }
 
 function enableListener() {
 	browser.tabs.onCreated.addListener(onCreated)
 	browser.tabs.onRemoved.addListener(onRemoved)
-	browser.tabs.onActivated.addListener(onChange)
-	browser.tabs.onAttached.addListener(onChange)
-	browser.tabs.onReplaced.addListener(onChange)
-	browser.tabs.onUpdated.addListener(onChange)
-	browser.tabs.onDetached.addListener(onChange)
-	browser.tabs.onMoved.addListener(onChange)
+	browser.tabs.onActivated.addListener(onActivated)
+	browser.tabs.onAttached.addListener(onAttached)
+	browser.tabs.onReplaced.addListener(onReplaced)
+	browser.tabs.onUpdated.addListener(onUpdated)
+	browser.tabs.onDetached.addListener(onDetached)
+	browser.tabs.onMoved.addListener(onMoved)
 }
 
 function disableListener() {
-	browser.tabs.onCreated.addListener(onCreated)
-	browser.tabs.onRemoved.addListener(onRemoved)
-	browser.tabs.onActivated.addListener(onChange)
-	browser.tabs.onAttached.addListener(onChange)
-	browser.tabs.onReplaced.addListener(onChange)
-	browser.tabs.onUpdated.addListener(onChange)
-	browser.tabs.onDetached.addListener(onChange)
-	browser.tabs.onMoved.addListener(onChange)
+	browser.tabs.onCreated.removeListener(onCreated)
+	browser.tabs.onRemoved.removeListener(onRemoved)
+	browser.tabs.onActivated.removeListener(onActivated)
+	browser.tabs.onAttached.removeListener(onAttached)
+	browser.tabs.onReplaced.removeListener(onReplaced)
+	browser.tabs.onUpdated.removeListener(onUpdated)
+	browser.tabs.onDetached.removeListener(onDetached)
+	browser.tabs.onMoved.removeListener(onMoved)
 }
 
 async function init() {
 	await unpinAll()
-	await onChange()
+	await onChanged()
 	enableListener()
 }
 
