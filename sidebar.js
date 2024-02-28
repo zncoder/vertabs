@@ -267,11 +267,6 @@ function removeTab(tabs, t) {
 }
 
 async function onCreated(t) {
-	console.log('create tab', t.index, t.openerTabId)
-	if (t.openerTabId) {
-		return
-	}
-
 	disableListener()
 	let [sticky, others] = await listTab()
 	if (removeTab(others, t)) {
