@@ -7,7 +7,6 @@ async function listTab() {
 	let sticky = []
 	let others = []
 	let tabs = await browser.tabs.query({currentWindow: true})
-	console.log('all tabs', tabs.length, tabs)
 	for (let t of tabs) {
 		if (!t.autoDiscardable) {
 			sticky.push(t)
@@ -74,8 +73,6 @@ function renderTabs(tabs, cls, hasClose) {
 async function refreshPage() {
 	let [sticky, others] = await listTab()
 	console.log('refreshpage sticky', sticky, 'others', others)
-	await fixTabIndex(sticky, 0)
-	await fixTabIndex(others, sticky.length)
 
 	let newStickyUI = renderTabs(sticky, 'sticky-ul', false)
 	let newOthersUI = renderTabs(others, 'others-ul', true)
@@ -144,7 +141,6 @@ async function newTabWithUrl(ev) {
 async function stickTab(ev) {
 	let [sticky, others] = await listTab()
 	let [cur] = await browser.tabs.query({active: true, currentWindow: true})
-	disableListener()
 	if (cur.autoDiscardable) {
 		// non-sticky -> sticky
 		await browser.tabs.update(cur.id, {autoDiscardable: false})
@@ -154,9 +150,6 @@ async function stickTab(ev) {
 		await browser.tabs.update(cur.id, {autoDiscardable: true})
 		await browser.tabs.move(cur.id, {index: sticky.length-1})
 	}
-
-	await refreshPage()
-	enableListener()
 }
 
 async function bottomTab(ev) {
@@ -267,14 +260,12 @@ function removeTab(tabs, t) {
 }
 
 async function onCreated(t) {
-	disableListener()
+	console.log('created', t.id, t.index, t.openerTabId)
 	let [sticky, others] = await listTab()
 	if (removeTab(others, t)) {
 		others.splice(0, 0, t)
 		await fixTabIndex(others, sticky.length)
-		await refreshPage()
 	}
-	enableListener()
 }
 
 async function unpinAll() {
@@ -285,6 +276,7 @@ async function unpinAll() {
 }
 
 async function onRemoved(removed) {
+	console.log('removed', removed)
 	let tabs = await browser.tabs.query({currentWindow: true})
 	for (let t of tabs) {
 		if (t.id === removed) {
@@ -294,43 +286,37 @@ async function onRemoved(removed) {
 			setTimeout(() => onRemoved(removed), 30)
 		}
 	}
-	await onChanged()
+	await refreshPage()
 }
 
 async function onActivated() {
 	console.log('activated')
-	await onChanged()
+	await refreshPage()
 }
 
 async function onAttached() {
 	console.log('attached')
-	await onChanged()
+	await refreshPage()
 }
 
 async function onReplaced() {
 	console.log('replaced')
-	await onChanged()
+	await refreshPage()
 }
 
 async function onUpdated() {
 	console.log('updated')
-	await onChanged()
+	await refreshPage()
 }
 
 async function onDetached() {
 	console.log('detached')
-	await onChanged()
+	await refreshPage()
 }
 
 async function onMoved() {
 	console.log('moved')
-	await onChanged()
-}
-
-async function onChanged() {
-	disableListener()
 	await refreshPage()
-	enableListener()
 }
 
 function enableListener() {
@@ -344,20 +330,9 @@ function enableListener() {
 	browser.tabs.onMoved.addListener(onMoved)
 }
 
-function disableListener() {
-	browser.tabs.onCreated.removeListener(onCreated)
-	browser.tabs.onRemoved.removeListener(onRemoved)
-	browser.tabs.onActivated.removeListener(onActivated)
-	browser.tabs.onAttached.removeListener(onAttached)
-	browser.tabs.onReplaced.removeListener(onReplaced)
-	browser.tabs.onUpdated.removeListener(onUpdated)
-	browser.tabs.onDetached.removeListener(onDetached)
-	browser.tabs.onMoved.removeListener(onMoved)
-}
-
 async function init() {
 	await unpinAll()
-	await onChanged()
+	await refreshPage()
 	enableListener()
 }
 
