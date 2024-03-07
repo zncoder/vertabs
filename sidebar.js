@@ -296,6 +296,8 @@ async function onActivated() {
 
 async function onAttached() {
 	console.log('attached')
+	let [sticky, others] = await listTab()
+	await fixTabIndex(sticky, 0)
 	await refreshPage()
 }
 
