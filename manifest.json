@@ -1,6 +1,6 @@
 {
   "name": "vertabs",
-  "version": "1.35.2",
+  "version": "1.36.0",
   "manifest_version": 2,
   "description": "Show tabs vertically in sidebar",
   "permissions": [
@@ -14,6 +14,9 @@
   "icons": {
     "48": "icons/48.png"
   },
+  "background": {
+    "scripts": [ "background.js" ]
+  },
   "sidebar_action": {
     "default_title": "vertabs",
     "default_panel": "sidebar.html",
@@ -24,7 +27,6 @@
       "browser_style": true
   },
   "browser_action": {
-    "default_popup": "popup.html?popup",
     "default_icon": "icons/32.png",
     "default_title": "Vertabs"
   }
