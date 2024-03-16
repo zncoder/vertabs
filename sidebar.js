@@ -233,7 +233,7 @@ async function archivePhPage(ev) {
 	let doc = dom.parseFromString(text, 'text/html')
 	let submitid = doc.body.querySelector('input[name=submitid]').value
 	let arurl = `${archive}submit/?submitid=${submitid}&url=${url}`
-	await browser.tabs.update({url: arurl})
+	await browser.tabs.update({url: arurl, loadReplace: true})
 }
 
 async function archiveOrgPage(ev) {
@@ -246,7 +246,7 @@ async function archiveOrgPage(ev) {
 	} else {
 		url = `https://web.archive.org/${url}`
 	}
-	await browser.tabs.update({url: url})
+	await browser.tabs.update({url: url, loadReplace: true})
 }
 
 function removeTab(tabs, t) {
