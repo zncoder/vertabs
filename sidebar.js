@@ -243,6 +243,7 @@ async function archivePage(ev) {
 	let submitid = doc.body.querySelector('input[name=submitid]').value
 	let arurl = `${archiveSite}submit/?submitid=${submitid}&url=${url}`
 	await browser.tabs.update({url: arurl})
+	ev.target.blur()
 }
 
 async function archiveOrgPage(ev) {
