@@ -219,21 +219,30 @@ async function zoomPage(ev) {
 	await browser.tabs.setZoom(level)
 }
 
-async function archivePhPage(ev) {
-	const archive = "https://archive.ph/"
+async function archivePage(ev) {
+	const archiveSite = "https://archive.is/"
+
 	let [tab] = await browser.tabs.query({active: true, currentWindow: true})
 	let url = tab.url
-	if (url.startsWith(archive)) {
+	if (url.startsWith(archiveSite)) {
+		for (let i = 0; i < 3; i++) {
+			await browser.tabs.goBack()
+			let [t] = await browser.tabs.query({active: true, currentWindow: true})
+			if (!t.url.startsWith(archiveSite)) {
+				break
+			}
+		}
 		return
 	}
-	// e.g. https://archive.ph/submit/?submitid=Fo6mIYROjR8%2F6xOxYj1Dl6taQzWMDjsWTIgoDt09KaVTrxOx9flzbQfdDiUt5Qr2&url=https%3A%2F%2Fwww.wsj.com%2Ftech%2Fai%2Fsam-altman-openai-protected-by-silicon-valley-friends-f3efcf68
-	let resp = await fetch(archive)
+
+	// e.g. https://archive.is/submit/?submitid=Fo6mIYROjR8%2F6xOxYj1Dl6taQzWMDjsWTIgoDt09KaVTrxOx9flzbQfdDiUt5Qr2&url=https%3A%2F%2Fwww.wsj.com%2Ftech%2Fai%2Fsam-altman-openai-protected-by-silicon-valley-friends-f3efcf68
+	let resp = await fetch(archiveSite)
 	let text = await resp.text()
 	let dom = new DOMParser()
 	let doc = dom.parseFromString(text, 'text/html')
 	let submitid = doc.body.querySelector('input[name=submitid]').value
-	let arurl = `${archive}submit/?submitid=${submitid}&url=${url}`
-	await browser.tabs.update({url: arurl, loadReplace: true})
+	let arurl = `${archiveSite}submit/?submitid=${submitid}&url=${url}`
+	await browser.tabs.update({url: arurl})
 }
 
 async function archiveOrgPage(ev) {
