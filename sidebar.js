@@ -56,20 +56,41 @@ const uiTmpls = {
  `
 }
 
+function groupTabsByCookieStoreId(tabs) {
+	let tabsByCsid = {}
+	for (const t of tabs) {
+		if (t.cookieStoreId === 'firefox-default') {
+			continue
+		}
+		if (!tabsByCsid[t.cookieStoreId]) {
+			tabsByCsid[t.cookieStoreId] = []
+		}
+		tabsByCsid[t.cookieStoreId].push(t)
+	}
+	return tabsByCsid
+}
+
+function getGroupClass(tabsByCsid, t) {
+	let cstabs = tabsByCsid[t.cookieStoreId]
+	if (cstabs && cstabs.length > 1) {
+		if (t.id === cstabs[0].id) {
+			return 'cs-begin'
+		} else if (t.id === cstabs[cstabs.length-1].id) {
+			return 'cs-end'
+		} else {
+			return 'cs-middle'
+		}
+	}
+	return undefined
+}
+
 function renderTabs(tabs, cls) {
 	const tmpl = uiTmpls[cls]
 	if (!tmpl) {
 		console.error('no template for', cls)
 		return
 	}
-	// group tabs by cookieStoreId
-	let tabsByCsid = {}
-	for (const t of tabs) {
-		if (!tabsByCsid[t.cookieStoreId]) {
-			tabsByCsid[t.cookieStoreId] = []
-		}
-		tabsByCsid[t.cookieStoreId].push(t)
-	}
+	let tabsByCsid = groupTabsByCookieStoreId(tabs)
 
 	let liObjs = []
 	for (const t of tabs) {
@@ -81,15 +102,9 @@ function renderTabs(tabs, cls) {
 		if (t.favIconUrl && !t.favIconUrl.startsWith('chrome://mozapps')) {
 			obj.img = `<img src='${t.favIconUrl}' class="favicon"> `
 		}
-		let cstabs = tabsByCsid[t.cookieStoreId]
-		if (cstabs.length > 1) {
-			if (t.id === cstabs[0].id) {
-				obj.csid_cls = 'cs-begin'
-			} else if (t.id === cstabs[cstabs.length-1].id) {
-				obj.csid_cls = 'cs-end'
-			} else {
-				obj.csid_cls = 'cs-middle'
-			}
+		let cscls = getGroupClass(tabsByCsid, t)
+		if (cscls) {
+			obj.csid_cls = cscls
 		}
 		obj.title = stripHTMLTags(t.title)
 		obj.url = t.url
@@ -102,6 +117,9 @@ function renderTabs(tabs, cls) {
 	ul.querySelectorAll('li').forEach(li => {
 		li.onclick = focusThisTab
 		li.onauxclick = closeThisTab
+	})
+	ul.querySelectorAll('.close-btn').forEach(btn => {
+		btn.onclick = closeThisTab
 	})
 	return ul
 }
