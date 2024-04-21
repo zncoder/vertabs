@@ -37,36 +37,53 @@ function stripHTMLTags(s) {
 	return el.textContent
 }
 
-function renderTabs(tabs, cls, hasClose) {
-	let ul = document.createElement('ul')
-	ul.classList.add(cls)
-	for (let t of tabs) {
-		let li = document.createElement('li')
-		li.id = `li-${t.id}`
-		li.classList.add('hover-btn')
-		if (t.active) {
-			li.classList.add('active-tab')
-		}
+const uiTmpls = {
+	'sticky-ul': `
+<ul class="{{cls}}">
+    {{begin_li}}
+    <li id="li-{{id}}" class="hover-btn {{active_tab}}">
+        &nbsp;&nbsp;<span id="t-{{id}}" class="tab-lnk" title="{{title}} - {{url}}">{{img}}{{title}}</span>
+    </li>{{end_li}}
+</ul>
+`,
+	'others-ul': `
+<ul class="{{cls}}">
+	{{begin_li}}
+    <li id="li-{{id}}" class="hover-btn {{active_tab}}">
+		<span id="c-{{id}}" class="close-btn" title="close">&nbsp;⨯&nbsp;</span><span id="t-{{id}}" class="tab-lnk" title="{{title}} - {{url}}">{{img}}{{title}}</span>
+  	</li>{{end_li}}
+</ul>
+ `
+}
 
-		let img = ''
+function renderTabs(tabs, cls) {
+	const tmpl = uiTmpls[cls]
+	if (!tmpl) {
+		console.error('no template for', cls)
+		return
+	}
+	let liObjs = []
+	for (const t of tabs) {
+		let obj = {}
+		obj.id = t.id
+		if (t.active) {
+			obj.active_tab = 'active-tab'
+		}
 		if (t.favIconUrl && !t.favIconUrl.startsWith('chrome://mozapps')) {
-			img = `<img src='${t.favIconUrl}' class="favicon"> `
+			obj.img = `<img src='${t.favIconUrl}' class="favicon"> `
 		}
-		if (hasClose) {
-			let title = stripHTMLTags(t.title)
-			li.innerHTML = `
-<span id='c-${t.id}' class='close-btn' title='close'>&nbsp;⨯&nbsp;</span><span class='tab-lnk' id='t-${t.id}' title='${title} - ${t.url}'>${img}${title}</span>
-`
-			li.querySelector('.close-btn').onclick = closeThisTab
-		} else {
-            li.innerHTML = `
-&nbsp;&nbsp;<span class='tab-lnk' id='t-${t.id}' title='${t.title} - ${t.url}'>${img}${t.title}</span>
-`
-		}
+		obj.title = stripHTMLTags(t.title)
+		obj.url = t.url
+		liObjs.push(obj)
+	}
+	let s = renderTemplate(uiTmpls[cls], {cls: cls, li: liObjs})
+	let div = document.createElement('div')
+	div.innerHTML = s
+	let ul = div.querySelector('ul')
+	ul.querySelectorAll('li').forEach(li => {
 		li.onclick = focusThisTab
 		li.onauxclick = closeThisTab
-		ul.appendChild(li)
-	}
+	})
 	return ul
 }
 
@@ -74,8 +91,8 @@ async function refreshPage() {
 	let [sticky, others] = await listTab()
 	console.log('refreshpage sticky', sticky, 'others', others)
 
-	let newStickyUI = renderTabs(sticky, 'sticky-ul', false)
-	let newOthersUI = renderTabs(others, 'others-ul', true)
+	let newStickyUI = renderTabs(sticky, 'sticky-ul')
+	let newOthersUI = renderTabs(others, 'others-ul')
 
 	tabsDiv.replaceChild(newStickyUI, stickyUl)
 	stickyUl = newStickyUI
