@@ -33,6 +33,10 @@
         color: black;
     }
 
+    .action-btn:hover {
+        background-color: #96b2d7;
+    }
+
     #actions-div {
         background-color: #dbddde;
         /* border-bottom-color: #c0c0c0; */
@@ -74,6 +78,10 @@
     .action-btn {
         background-color: #22232c;
         color: white;
+    }
+
+    .action-btn:hover {
+        background-color: #4f4f4f;
     }
 
     #actions-div {
@@ -172,6 +180,10 @@ a {
     padding: 0;
     width: 1.5em;
     font-size: large;
+}
+
+.action-btn:hover {
+    border-radius: 8px 8px 8px 8px;
 }
 
 #newtab-btn {
