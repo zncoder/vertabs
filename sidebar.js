@@ -49,7 +49,7 @@ const uiTmpls = {
 	'others-ul': `
 <ul class="{{cls}}">
 	{{begin_li}}
-    <li id="li-{{id}}" class="hover-btn {{active_tab}}">
+    <li id="li-{{id}}" class="hover-btn {{active_tab}} {{csid_cls}}">
 		<span id="c-{{id}}" class="close-btn" title="close">&nbsp;⨯&nbsp;</span><span id="t-{{id}}" class="tab-lnk" title="{{title}} - {{url}}">{{img}}{{title}}</span>
   	</li>{{end_li}}
 </ul>
@@ -62,6 +62,15 @@ function renderTabs(tabs, cls) {
 		console.error('no template for', cls)
 		return
 	}
+	// group tabs by cookieStoreId
+	let tabsByCsid = {}
+	for (const t of tabs) {
+		if (!tabsByCsid[t.cookieStoreId]) {
+			tabsByCsid[t.cookieStoreId] = []
+		}
+		tabsByCsid[t.cookieStoreId].push(t)
+	}
+
 	let liObjs = []
 	for (const t of tabs) {
 		let obj = {}
@@ -71,6 +80,16 @@ function renderTabs(tabs, cls) {
 		}
 		if (t.favIconUrl && !t.favIconUrl.startsWith('chrome://mozapps')) {
 			obj.img = `<img src='${t.favIconUrl}' class="favicon"> `
+		}
+		let cstabs = tabsByCsid[t.cookieStoreId]
+		if (cstabs.length > 1) {
+			if (t.id === cstabs[0].id) {
+				obj.csid_cls = 'cs-begin'
+			} else if (t.id === cstabs[cstabs.length-1].id) {
+				obj.csid_cls = 'cs-end'
+			} else {
+				obj.csid_cls = 'cs-middle'
+			}
 		}
 		obj.title = stripHTMLTags(t.title)
 		obj.url = t.url

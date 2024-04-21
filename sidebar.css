@@ -20,6 +20,20 @@
         background-color: #96b2d7;
     }
 
+	.cs-begin {
+		border-top: 1px solid #96b2d7;
+		border-right: 1px solid #96b2d7;
+	}
+
+	.cs-middle {
+		border-right: 1px solid #96b2d7;
+	}
+
+	.cs-end {
+		border-right: 1px solid #96b2d7;
+		border-bottom: 1px solid #96b2d7;
+	}
+
     .action-btn {
         background-color: #dbddde;
         color: black;
@@ -52,8 +66,22 @@
     }
 
     .active-tab {
-        background-color: #454758;
+        background-color: #4f4f4f;
     }
+
+	.cs-begin {
+		border-top: 1px solid #4f4f4f;
+		border-right: 1px solid #4f4f4f;
+	}
+
+	.cs-middle {
+		border-right: 1px solid #4f4f4f;
+	}
+
+	.cs-end {
+		border-right: 1px solid #4f4f4f;
+		border-bottom: 1px solid #4f4f4f;
+	}
 
     .action-btn {
         background-color: #22232c;
@@ -167,7 +195,7 @@ a {
 }
 
 .hover-btn:hover {
-    border-radius: 16px 16px 16px 16px;
+    border-radius: 16px 0px 0px 16px;
 }
 
 .favicon {
@@ -181,7 +209,7 @@ a {
 }
 
 .active-tab {
-    border-radius: 16px 16px 16px 16px;
+    border-radius: 16px 0px 0px 16px;
 }
 
 .active-tab > .tab-lnk {
