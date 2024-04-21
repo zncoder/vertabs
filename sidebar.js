@@ -70,15 +70,15 @@ function groupTabsByCookieStoreId(tabs) {
 	return tabsByCsid
 }
 
-function getGroupClass(tabsByCsid, t) {
+function getGroupClass(tabsByCsid, t, sfx) {
 	let cstabs = tabsByCsid[t.cookieStoreId]
 	if (cstabs && cstabs.length > 1) {
 		if (t.id === cstabs[0].id) {
-			return 'cs-begin'
+			return `cs-begin-${sfx}`
 		} else if (t.id === cstabs[cstabs.length-1].id) {
-			return 'cs-end'
+			return `cs-end-${sfx}`
 		} else {
-			return 'cs-middle'
+			return `cs-middle-${sfx}`
 		}
 	}
 	return undefined
@@ -93,6 +93,7 @@ function renderTabs(tabs, cls) {
 	let tabsByCsid = groupTabsByCookieStoreId(tabs)
 
 	let liObjs = []
+	let sfx = 0
 	for (const t of tabs) {
 		let obj = {}
 		obj.id = t.id
@@ -102,9 +103,12 @@ function renderTabs(tabs, cls) {
 		if (t.favIconUrl && !t.favIconUrl.startsWith('chrome://mozapps')) {
 			obj.img = `<img src='${t.favIconUrl}' class="favicon"> `
 		}
-		let cscls = getGroupClass(tabsByCsid, t)
+		let cscls = getGroupClass(tabsByCsid, t, sfx)
 		if (cscls) {
 			obj.csid_cls = cscls
+			if (cscls.startsWith('cs-end')) {
+				sfx = (sfx + 1) % 2
+			}
 		}
 		obj.title = stripHTMLTags(t.title)
 		obj.url = t.url

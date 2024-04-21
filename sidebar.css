@@ -20,18 +20,12 @@
         background-color: #96b2d7;
     }
 
-	.cs-begin {
-		border-top: 1px solid #96b2d7;
-		border-right: 1px solid #96b2d7;
+	.cs-begin-0, .cs-middle-0, .cs-end-0 {
+		border-right: 2px solid blue;
 	}
 
-	.cs-middle {
-		border-right: 1px solid #96b2d7;
-	}
-
-	.cs-end {
-		border-right: 1px solid #96b2d7;
-		border-bottom: 1px solid #96b2d7;
+	.cs-begin-1, .cs-middle-1, .cs-end-1 {
+		border-right: 2px solid brown;
 	}
 
     .action-btn {
@@ -69,18 +63,12 @@
         background-color: #4f4f4f;
     }
 
-	.cs-begin {
-		border-top: 1px solid #4f4f4f;
-		border-right: 1px solid #4f4f4f;
+	.cs-begin-0, .cs-middle-0, .cs-end-0 {
+		border-right: 2px solid blue;
 	}
 
-	.cs-middle {
-		border-right: 1px solid #4f4f4f;
-	}
-
-	.cs-end {
-		border-right: 1px solid #4f4f4f;
-		border-bottom: 1px solid #4f4f4f;
+	.cs-begin-1, .cs-middle-1, .cs-end-1 {
+		border-right: 2px solid brown;
 	}
 
     .action-btn {
