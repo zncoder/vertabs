@@ -274,11 +274,21 @@ function removeTab(tabs, t) {
 	return false
 }
 
+async function addTab(tabs, t) {
+	for (let i = 0; i < tabs.length; i++) {
+		if (tabs[i].cookieStoreId === t.cookieStoreId) {
+			tabs.splice(i, 0, t)
+			return
+		}
+	}
+	tabs.splice(0, 0, t)
+}
+
 async function onCreated(t) {
 	console.log('created', t.id, t.index, t.openerTabId)
 	let [sticky, others] = await listTab()
 	if (removeTab(others, t)) {
-		others.splice(0, 0, t)
+		addTab(others, t)
 		await fixTabIndex(others, sticky.length)
 	}
 }
