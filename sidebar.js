@@ -329,6 +329,10 @@ function removeTab(tabs, t) {
 }
 
 async function addTab(tabs, t) {
+	if (t.cookieStoreId === 'firefox-default') {
+		tabs.splice(0, 0, t)
+		return
+	}
 	for (let i = 0; i < tabs.length; i++) {
 		if (tabs[i].cookieStoreId === t.cookieStoreId) {
 			tabs.splice(i, 0, t)
