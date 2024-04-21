@@ -197,12 +197,17 @@ async function dupTab(ev) {
 async function groupTabs(ev) {
 	let tabs = await browser.tabs.query({currentWindow: true, autoDiscardable: true})
 	tabs.sort((a, b) => {
+		// group by container and then host
+		let csa = a.cookieStoreId
+		let csb = b.cookieStoreId
+		if (csa !== csb) {
+			return csa < csb ? -1 : 1;
+		}
+
 		let hosta = new URL(a.url).hostname.replace(/^www\./, '')
 		let hostb = new URL(b.url).hostname.replace(/^www\./, '')
-		if (hosta < hostb) {
-			return -1
-		} else if (hosta > hostb) {
-			return 1
+		if (hosta !== hostb) {
+			return hosta < hostb ? -1 : 1;
 		}
 		return a.index - b.index
 	})
