@@ -210,9 +210,70 @@ async function stickTab(ev) {
 	}
 }
 
-async function bottomTab(ev) {
+async function upTab(ev) {
+	moveUpTab(false)
+}
+
+async function moveUpTab(top) {
+	let [sticky, others] = await listTab()
+	await fixTabIndex(sticky, 0)
+	await fixTabIndex(others, sticky.length)
 	let [t] = await browser.tabs.query({active: true, currentWindow: true})
-	await browser.tabs.move(t.id, {index: -1})
+	let index = t.index
+	if (t.autoDiscardable) {
+		if (top) {
+			index = sticky.length
+		} else if (t.index > sticky.length) {
+			index = t.index-1
+		}
+	} else {
+		if (top) {
+			index = 0
+		} else if (t.index > 0) {
+			index = t.index-1
+		}
+	}
+	console.log('up', t.index, index)
+	if (index < t.index) {
+		await browser.tabs.move(t.id, {index: index})
+	}
+}
+
+async function topTab(ev) {
+	moveUpTab(true)
+}
+
+async function downTab(ev) {
+	moveDownTab(false)
+}
+
+async function bottomTab(ev) {
+	moveDownTab(true)
+}
+
+async function moveDownTab(bottom) {
+	let [sticky, others] = await listTab()
+	await fixTabIndex(sticky, 0)
+	await fixTabIndex(others, sticky.length)
+	let [t] = await browser.tabs.query({active: true, currentWindow: true})
+	let index = t.index
+	if (t.autoDiscardable) {
+		if (bottom) {
+			index = -1
+		} else if (t.index < sticky.length+others.length-1) {
+			index = t.index+1
+		}
+	} else {
+		if (bottom) {
+			index = sticky.length-1
+		} else if (t.index < sticky.length-1) {
+			index = t.index+1
+		}
+	}
+	console.log('down', t.index, index)
+	if (index != t.index) {
+		await browser.tabs.move(t.id, {index: index})
+	}
 }
 
 async function undoTab(ev) {
