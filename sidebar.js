@@ -121,6 +121,7 @@ function renderTabs(tabs, cls) {
 	ul.querySelectorAll('li').forEach(li => {
 		li.onclick = focusThisTab
 		li.onauxclick = closeThisTab
+		li.ondblclick = prevTab
 	})
 	ul.querySelectorAll('.close-btn').forEach(btn => {
 		btn.onclick = closeThisTab
