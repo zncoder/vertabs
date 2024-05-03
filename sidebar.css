@@ -20,6 +20,10 @@
         background-color: #96b2d7;
     }
 
+	.prev-tab {
+		background-color: #e0e0e0;
+	}
+
 	.cs-begin-0, .cs-middle-0, .cs-end-0 {
 		border-right: 2px solid blue;
 	}
@@ -66,6 +70,10 @@
     .active-tab {
         background-color: #4f4f4f;
     }
+
+	.prev-tab {
+		background-color: #202030;
+	}
 
 	.cs-begin-0, .cs-middle-0, .cs-end-0 {
 		border-right: 2px solid blue;

@@ -41,7 +41,7 @@ const uiTmpls = {
 	'sticky-ul': `
 <ul class="{{cls}}">
     {{begin_li}}
-    <li id="li-{{id}}" class="hover-btn {{active_tab}}">
+    <li id="li-{{id}}" class="hover-btn {{active_tab}} {{prev_tab}}">
         &nbsp;&nbsp;<span id="t-{{id}}" class="tab-lnk" title="{{title}} - {{url}}">{{img}}{{title}}</span>
     </li>{{end_li}}
 </ul>
@@ -49,7 +49,7 @@ const uiTmpls = {
 	'others-ul': `
 <ul class="{{cls}}">
 	{{begin_li}}
-    <li id="li-{{id}}" class="hover-btn {{active_tab}} {{csid_cls}}">
+    <li id="li-{{id}}" class="hover-btn {{active_tab}} {{prev_tab}} {{csid_cls}}">
 		<span id="c-{{id}}" class="close-btn" title="close">&nbsp;⨯&nbsp;</span><span id="t-{{id}}" class="tab-lnk" title="{{title}} - {{url}}">{{img}}{{title}}</span>
   	</li>{{end_li}}
 </ul>
@@ -84,7 +84,7 @@ function getGroupClass(tabsByCsid, t, sfx) {
 	return undefined
 }
 
-function renderTabs(tabs, cls) {
+function renderTabs(tabs, cls, prev) {
 	const tmpl = uiTmpls[cls]
 	if (!tmpl) {
 		console.error('no template for', cls)
@@ -99,6 +99,9 @@ function renderTabs(tabs, cls) {
 		obj.id = t.id
 		if (t.active) {
 			obj.active_tab = 'active-tab'
+		} else if (prev && prev.id === t.id) {
+			obj.prev_tab = 'prev-tab'
+			console.log('prev', prev.id, prev.title)
 		}
 		if (t.favIconUrl && !t.favIconUrl.startsWith('chrome://mozapps')) {
 			obj.img = `<img src='${t.favIconUrl}' class="favicon"> `
@@ -114,6 +117,8 @@ function renderTabs(tabs, cls) {
 		obj.url = t.url
 		liObjs.push(obj)
 	}
+
+
 	let s = renderTemplate(uiTmpls[cls], {cls: cls, li: liObjs})
 	let div = document.createElement('div')
 	div.innerHTML = s
@@ -133,8 +138,10 @@ async function refreshPage() {
 	let [sticky, others] = await listTab()
 	console.log('refreshpage sticky', sticky, 'others', others)
 
-	let newStickyUI = renderTabs(sticky, 'sticky-ul')
-	let newOthersUI = renderTabs(others, 'others-ul')
+	let prev = findPrevTab(sticky.concat(others))
+
+	let newStickyUI = renderTabs(sticky, 'sticky-ul', prev)
+	let newOthersUI = renderTabs(others, 'others-ul', prev)
 
 	tabsDiv.replaceChild(newStickyUI, stickyUl)
 	stickyUl = newStickyUI
@@ -165,15 +172,20 @@ function closeTab(tid) {
 async function prevTab(ev) {
 	ev.preventDefault()
 	let tabs = await browser.tabs.query({currentWindow: true})
+	let prev = findPrevTab(tabs)
+	if (prev) {
+		browser.tabs.update(prev.id, {active: true})
+	}
+}
+
+function findPrevTab(tabs) {
 	let prev = null
 	for (let t of tabs) {
 		if (!t.active && (!prev || prev.lastAccessed < t.lastAccessed)) {
 			prev = t
 		}
 	}
-	if (prev) {
-		browser.tabs.update(prev.id, {active: true})
-	}
+	return prev
 }
 
 function focusThisTab(ev) {
