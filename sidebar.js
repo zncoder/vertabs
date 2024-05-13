@@ -124,9 +124,8 @@ function renderTabs(tabs, cls, prev) {
 	div.innerHTML = s
 	let ul = div.querySelector('ul')
 	ul.querySelectorAll('li').forEach(li => {
-		li.onclick = focusThisTab
+		li.onclick = focusThisOrPrevTab
 		li.onauxclick = closeThisTab
-		li.ondblclick = prevTab
 	})
 	ul.querySelectorAll('.close-btn').forEach(btn => {
 		btn.onclick = closeThisTab
@@ -169,8 +168,7 @@ function closeTab(tid) {
 	browser.tabs.remove([tid])
 }
 
-async function prevTab(ev) {
-	ev.preventDefault()
+async function focusPrevTab() {
 	let tabs = await browser.tabs.query({currentWindow: true})
 	let prev = findPrevTab(tabs)
 	if (prev) {
@@ -188,10 +186,15 @@ function findPrevTab(tabs) {
 	return prev
 }
 
-function focusThisTab(ev) {
+async function focusThisOrPrevTab(ev) {
 	ev.preventDefault()
 	let tid = getTabId(ev)
-	browser.tabs.update(tid, {active: true})
+	let [cur] = await browser.tabs.query({active: true, currentWindow: true})
+	if (tid === cur.id) {
+		await focusPrevTab()
+	} else {
+		await browser.tabs.update(tid, {active: true})
+	}
 	if (isPopup) {
 		window.close()
 	}
