@@ -41,7 +41,7 @@ const uiTmpls = {
 	'sticky-ul': `
 <ul class="{{cls}}">
     {{begin_li}}
-    <li id="li-{{id}}" class="hover-btn {{active_tab}} {{prev_tab}}">
+    <li id="li-{{id}}" draggable="true" class="hover-btn {{active_tab}} {{prev_tab}}">
         &nbsp;&nbsp;<span id="t-{{id}}" class="tab-lnk" title="{{title}} - {{url}}">{{img}}{{title}}</span>
     </li>{{end_li}}
 </ul>
@@ -49,7 +49,7 @@ const uiTmpls = {
 	'others-ul': `
 <ul class="{{cls}}">
 	{{begin_li}}
-    <li id="li-{{id}}" class="hover-btn {{active_tab}} {{prev_tab}} {{csid_cls}}">
+    <li id="li-{{id}}" draggable="true" class="hover-btn {{active_tab}} {{prev_tab}} {{csid_cls}}">
 		<span id="c-{{id}}" class="close-btn" title="close">&nbsp;⨯&nbsp;</span><span id="t-{{id}}" class="tab-lnk" title="{{title}} - {{url}}">{{img}}{{title}}</span>
   	</li>{{end_li}}
 </ul>
@@ -82,6 +82,58 @@ function getGroupClass(tabsByCsid, t, sfx) {
 		}
 	}
 	return undefined
+}
+
+function getLiTid(el) {
+	while (el) {
+		if (el.tagName === 'LI') {
+			if (el.id.startsWith('li-')) {
+				return parseInt(el.id.slice(3))
+			}
+			return undefined
+		}
+		el = el.parentElement
+	}
+	return undefined
+}
+
+function onDragStart(ev) {
+	let tid = getLiTid(ev.target)
+	if (tid) {
+		ev.dataTransfer.setData('text/plain', `${tid}/${ev.clientY}`)
+	}
+}
+
+function onDragOver(ev) {
+	ev.preventDefault()
+}
+
+async function onDragDrop(ev) {
+	ev.preventDefault()
+	let [a, b] = ev.dataTransfer.getData('text/plain').split('/')
+	let initY = parseInt(b)
+	let up = initY > ev.clientY
+	let sid = parseInt(a)
+	let did = getLiTid(ev.target)
+	if (!sid || !did) {
+		console.log('invalid drop', sid, did, ev)
+		return
+	}
+	let st = await browser.tabs.get(sid)
+	let dt = await browser.tabs.get(did)
+	if (!st || !dt) {
+		console.log('invalid tabs', st, dt)
+		return
+	}
+	if (st.autoDiscardable !== dt.autoDiscardable) {
+		console.log('cannot move between sticky and non-sticky', st, dt)
+		return
+	}
+	if (up) {
+		await browser.tabs.move(st.id, {index: dt.index})
+	} else {
+		await browser.tabs.move(st.id, {index: dt.index})
+	}
 }
 
 function renderTabs(tabs, cls, prev) {
@@ -126,6 +178,9 @@ function renderTabs(tabs, cls, prev) {
 	ul.querySelectorAll('li').forEach(li => {
 		li.onclick = focusThisOrPrevTab
 		li.onauxclick = closeThisTab
+		li.ondragstart = onDragStart
+		li.ondragover = onDragOver
+		li.ondrop = onDragDrop
 	})
 	ul.querySelectorAll('.close-btn').forEach(btn => {
 		btn.onclick = closeThisTab
@@ -218,7 +273,7 @@ async function stickTab(ev) {
 	if (cur.autoDiscardable) {
 		// non-sticky -> sticky
 		await browser.tabs.update(cur.id, {autoDiscardable: false})
-		await browser.tabs.move(cur.id, {index: 0})
+		await browser.tabs.move(cur.id, {index: sticky.length})
 	} else {
 		// stickey -> non-sticky
 		await browser.tabs.update(cur.id, {autoDiscardable: true})
