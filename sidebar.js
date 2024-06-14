@@ -153,7 +153,7 @@ function renderTabs(tabs, cls, prev) {
 			obj.active_tab = 'active-tab'
 		} else if (prev && prev.id === t.id) {
 			obj.prev_tab = 'prev-tab'
-			console.log('prev', prev.id, prev.title)
+			// console.log('prev', prev.id, prev.title)
 		}
 		if (t.favIconUrl && !t.favIconUrl.startsWith('chrome://mozapps')) {
 			obj.img = `<img src='${t.favIconUrl}' class="favicon"> `
@@ -190,7 +190,7 @@ function renderTabs(tabs, cls, prev) {
 
 async function refreshPage() {
 	let [sticky, others] = await listTab()
-	console.log('refreshpage sticky', sticky, 'others', others)
+	// console.log('refreshpage sticky', sticky, 'others', others)
 
 	let prev = findPrevTab(sticky.concat(others))
 
@@ -261,7 +261,7 @@ function newTab(ev) {
 
 async function newTabWithUrl(ev) {
 	let url = await navigator.clipboard.readText()
-	console.log('url', url)
+	// console.log('url', url)
 	if (url.startsWith("https://") || url.startsWith("http://")) {
 		await browser.tabs.create({active: true, url: url})
 	}
@@ -304,7 +304,7 @@ async function moveUpTab(top) {
 			index = t.index-1
 		}
 	}
-	console.log('up', t.index, index)
+	// console.log('up', t.index, index)
 	if (index < t.index) {
 		await browser.tabs.move(t.id, {index: index})
 	}
@@ -333,15 +333,19 @@ async function moveDownTab(bottom) {
 			index = -1
 		} else if (t.index < sticky.length+others.length-1) {
 			index = t.index+1
+		} else {
+			index = sticky.length
 		}
 	} else {
 		if (bottom) {
 			index = sticky.length-1
 		} else if (t.index < sticky.length-1) {
 			index = t.index+1
+		} else {
+			index = 0
 		}
 	}
-	console.log('down', t.index, index)
+	// console.log('down', t.index, index)
 	if (index != t.index) {
 		await browser.tabs.move(t.id, {index: index})
 	}
