@@ -76,11 +76,11 @@
 	}
 
 	.cs-begin-0, .cs-middle-0, .cs-end-0 {
-		border-right: 2px solid blue;
+		border-right: 2px solid steelblue;
 	}
 
 	.cs-begin-1, .cs-middle-1, .cs-end-1 {
-		border-right: 2px solid brown;
+		border-right: 2px solid green;
 	}
 
     .action-btn {

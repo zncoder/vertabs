@@ -58,24 +58,65 @@ const uiTmpls = {
 
 function groupTabsByCookieStoreId(tabs) {
 	let tabsByCsid = {}
+	let ok
 	for (const t of tabs) {
 		if (t.cookieStoreId === 'firefox-default') {
 			continue
 		}
+		ok = true
 		if (!tabsByCsid[t.cookieStoreId]) {
 			tabsByCsid[t.cookieStoreId] = []
 		}
 		tabsByCsid[t.cookieStoreId].push(t)
 	}
-	return tabsByCsid
+	return ok ? tabsByCsid : undefined
 }
 
-function getGroupClass(tabsByCsid, t, sfx) {
+function getGroupClassByCsid(tabsByCsid, t, sfx) {
 	let cstabs = tabsByCsid[t.cookieStoreId]
 	if (cstabs && cstabs.length > 1) {
 		if (t.id === cstabs[0].id) {
 			return `cs-begin-${sfx}`
 		} else if (t.id === cstabs[cstabs.length-1].id) {
+			return `cs-end-${sfx}`
+		} else {
+			return `cs-middle-${sfx}`
+		}
+	}
+	return undefined
+}
+
+function rootOpenerId(t, tabsById) {
+	while (true) {
+		let opener = tabsById[t.openerTabId]
+		if (opener) {
+			t = opener
+		} else {
+			return t.id
+		}
+	}
+}
+
+function groupTabsByOpener(tabs, tabsById) {
+	// opener of tab without openerTabId is the tab itself
+	let tabsByOpener = {} // openerTabId -> [tabs]
+	for (const t of tabs) {
+		let opener = rootOpenerId(t, tabsById)
+		if (!tabsByOpener[opener]) {
+			tabsByOpener[opener] = []
+		}
+		tabsByOpener[opener].push(t)
+	}
+	return tabsByOpener
+}
+
+function getGroupClassByOpener(tabsByOpener, tabsById, t, sfx) {
+	let opener = rootOpenerId(t, tabsById)
+	let tabs = tabsByOpener[opener]
+	if (tabs && tabs.length > 1) {
+		if (t.id === tabs[0].id) {
+			return `cs-begin-${sfx}`
+		} else if (t.id === tabs[tabs.length-1].id) {
 			return `cs-end-${sfx}`
 		} else {
 			return `cs-middle-${sfx}`
@@ -144,7 +185,12 @@ function renderTabs(tabs, cls, prev) {
 		console.error('no template for', cls)
 		return
 	}
+	let tabsById = {}
+	for (const t of tabs) {
+		tabsById[t.id] = t
+	}
 	let tabsByCsid = groupTabsByCookieStoreId(tabs)
+	let tabsByOpener = tabsByCsid ? undefined : groupTabsByOpener(tabs, tabsById)
 
 	let liObjs = []
 	let sfx = 0
@@ -160,7 +206,7 @@ function renderTabs(tabs, cls, prev) {
 		if (t.favIconUrl && !t.favIconUrl.startsWith('chrome://mozapps')) {
 			obj.img = `<img src='${t.favIconUrl}' class="favicon"> `
 		}
-		let cscls = getGroupClass(tabsByCsid, t, sfx)
+		let cscls = tabsByCsid ? getGroupClassByCsid(tabsByCsid, t, sfx) : getGroupClassByOpener(tabsByOpener, tabsById, t, sfx)
 		if (cscls) {
 			obj.csid_cls = cscls
 			if (cscls.startsWith('cs-end')) {
