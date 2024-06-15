@@ -129,6 +129,8 @@ async function onDragDrop(ev) {
 		console.log('cannot move between sticky and non-sticky', st, dt)
 		return
 	}
+	// use openTabId to group them
+	await browser.tabs.update(st.id, {openerTabId: dt.id})
 	if (up) {
 		await browser.tabs.move(st.id, {index: dt.index})
 	} else {
@@ -395,13 +397,13 @@ async function groupTabs(ev) {
 		let csa = a.cookieStoreId
 		let csb = b.cookieStoreId
 		if (csa !== csb) {
-			return csa < csb ? -1 : 1;
+			return csa < csb ? -1 : 1
 		}
 
 		let hosta = new URL(a.url).hostname.replace(/^www\./, '')
 		let hostb = new URL(b.url).hostname.replace(/^www\./, '')
 		if (hosta !== hostb) {
-			return hosta < hostb ? -1 : 1;
+			return hosta < hostb ? -1 : 1
 		}
 		return a.index - b.index
 	})
@@ -470,6 +472,14 @@ function removeTab(tabs, t) {
 
 async function addTab(tabs, t) {
 	if (t.cookieStoreId === 'firefox-default') {
+		if (t.openerTabId) {
+			for (let i = 0; i < tabs.length; i++) {
+				if (tabs[i].id === t.openerTabId) {
+					tabs.splice(i, 0, t)
+					return
+				}
+			}
+		}
 		tabs.splice(0, 0, t)
 		return
 	}
