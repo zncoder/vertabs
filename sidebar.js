@@ -1,4 +1,4 @@
-const isPopup = window.location.href.endsWith('popup')
+const isPopup = window.location.href.endsWith('popup') || window.location.href.endsWith('search')
 const tabsDiv = document.querySelector('#tabs-div')
 let stickyUl = document.querySelector('#sticky-ul')
 let othersUl = document.querySelector('#others-ul')
@@ -397,6 +397,10 @@ async function moveDownTab(bottom) {
 	if (index != t.index) {
 		await browser.tabs.move(t.id, {index: index})
 	}
+}
+
+async function searchTab(ev) {
+	await browser.tabs.create({active: true, url: '/search.html#search'})
 }
 
 async function undoTab(ev) {

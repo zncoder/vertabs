@@ -51,6 +51,10 @@
         background-color: #d1cfd7;
         box-shadow: 1px 1px 4px #555;
     }
+
+	#search-box {
+		background-color: #e5e8ea;
+	}
 }
 
 @media(prefers-color-scheme: dark) {
@@ -102,6 +106,10 @@
         background-color: #1c1b21;
         box-shadow: 1px 1px 4px #000;
     }
+
+	#search-box {
+		background-color: #282a35;
+	}
 }
 
 html, body {
@@ -222,4 +230,14 @@ a {
 
 .active-tab > .tab-lnk {
     font-weight: bold;
+}
+
+#search-div {
+	margin: 1em;
+	font-size: larger;
+	font-weight: bold;
+}
+
+#search-box {
+	border: 0px;
 }

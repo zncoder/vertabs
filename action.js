@@ -18,3 +18,4 @@ document.querySelector('#zoom-btn').onclick = zoomPage
 document.querySelector('#archiveorg-btn').onclick = archivePage
 // document.querySelector('#archiveorg-btn').onclick = archiveOrgPage
 document.querySelector('#paste-btn').onclick = newTabWithUrl
+document.querySelector('#search-btn').onclick = searchTab
