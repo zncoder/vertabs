@@ -309,6 +309,7 @@ function newTab(ev) {
 
 async function newTabWithUrl(ev) {
 	let url = await navigator.clipboard.readText()
+	url = url.trim()
 	// console.log('url', url)
 	if (url.startsWith("https://") || url.startsWith("http://")) {
 		await browser.tabs.create({active: true, url: url})
