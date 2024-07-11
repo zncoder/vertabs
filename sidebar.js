@@ -308,12 +308,21 @@ function newTab(ev) {
 }
 
 async function newTabWithUrl(ev) {
-	let url = await navigator.clipboard.readText()
-	url = url.trim()
-	// console.log('url', url)
-	if (url.startsWith("https://") || url.startsWith("http://")) {
-		await browser.tabs.create({active: true, url: url})
+	let text = await navigator.clipboard.readText()
+	text = text.trim()
+	if (text.length === 0) {
+		return
 	}
+	let url = text
+	if (url.startsWith('/')) {
+		url = 'file://' + url
+	} else if (!url.startsWith('https://') && !url.startsWith('http://')) {
+		url = 'https://' + url
+	}
+	if (text !== url) {
+		console.log('new tab with url', text, '=>', url)
+	}
+	await browser.tabs.create({active: true, url: url})
 }
 
 async function stickTab(ev) {
