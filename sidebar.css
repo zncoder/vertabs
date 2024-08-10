@@ -175,9 +175,9 @@ li {
     cursor: crosshair;
 }
 
-li:hover > .close-btn {
-    visibility: visible;
-}
+/* li:hover > .close-btn { */
+/*     visibility: visible; */
+/* } */
 
 a {
     text-decoration: none;
