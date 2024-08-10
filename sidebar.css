@@ -134,15 +134,15 @@ body {
 }
 
 .sticky-ul {
-    margin: 0.2em 0.2em 0.5em 0.2em;
+    margin: 0.2em 0 0.2em 0;
     border-radius: 6px;
-    padding: 0.1em;
+    padding: 0.1em 0 0.1em 0;
 }
 
-ul {
+.others-ul {
     list-style: none;
     padding: 0;
-    margin: 0;
+    margin: 0.5em 0 0 0;
 }
 
 li {
@@ -164,7 +164,7 @@ li {
     width: 94%;
     overflow: hidden;
     text-overflow: "";
-    padding: 0 1em 0 0;
+    padding: 0 0.1em 0 0.5em;
 }
 
 .close-btn {
@@ -172,6 +172,7 @@ li {
     margin: 0;
     /* float: right; */
     visibility: hidden;
+	display: none;
     cursor: crosshair;
 }
 
@@ -212,7 +213,7 @@ a {
 }
 
 .hover-btn:hover {
-    border-radius: 16px 0px 0px 16px;
+    border-radius: 2px;
 }
 
 .favicon {
@@ -226,7 +227,7 @@ a {
 }
 
 .active-tab {
-    border-radius: 16px 0px 0px 16px;
+    border-radius: 2px;
 }
 
 .active-tab > .tab-lnk {

@@ -42,7 +42,7 @@ const uiTmpls = {
 <ul class="{{cls}}">
     {{begin_li}}
     <li id="li-{{id}}" draggable="true" class="hover-btn {{active_tab}} {{prev_tab}}">
-        &nbsp;&nbsp;<span id="t-{{id}}" class="tab-lnk" title="{{title}} - {{url}}">{{img}}{{title}}</span>
+        <span id="t-{{id}}" class="tab-lnk" title="{{title}} - {{url}}">{{img}}{{title}}</span>
     </li>{{end_li}}
 </ul>
 `,
