@@ -2,6 +2,7 @@ const isPopup = window.location.href.endsWith('popup') || window.location.href.e
 const tabsDiv = document.querySelector('#tabs-div')
 let stickyUl = document.querySelector('#sticky-ul')
 let othersUl = document.querySelector('#others-ul')
+let detachWin = null
 
 async function listTab() {
 	let sticky = []
@@ -433,8 +434,18 @@ async function closeCurTab(ev) {
 
 async function detachTab(ev) {
 	let [tab] = await browser.tabs.query({active: true, currentWindow: true})
-	if (tab) {
-		browser.windows.create({tabId: tab.id})
+	if (detachWin) {
+		try {
+			await browser.windows.get(detachWin)
+		} catch (e) {
+			detachWin = null
+		}
+	}
+	if (detachWin) {
+		await browser.tabs.move(tab.id, {windowId: detachWin, index: -1})
+	} else {
+		let win = await browser.windows.create({tabId: tab.id})
+		detachWin = win.id
 	}
 }
 
