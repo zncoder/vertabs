@@ -31,3 +31,9 @@ function renderArrayTemplate(tmpl, array) {
 	}
 	return s
 }
+
+function stripHTMLTags(s) {
+	let el = document.createElement('div')
+	el.innerHTML = s
+	return el.textContent
+}

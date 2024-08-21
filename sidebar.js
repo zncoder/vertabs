@@ -32,12 +32,6 @@ async function fixTabIndex(tabs, base) {
 	}
 }
 
-function stripHTMLTags(s) {
-	let el = document.createElement('div')
-	el.innerHTML = s
-	return el.textContent
-}
-
 const uiTmpls = {
 	'sticky-ul': `
 <ul class="{{cls}}">
