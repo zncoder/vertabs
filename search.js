@@ -17,13 +17,8 @@ const tabTmpls = `
 
 async function renderTabs() {
 	let liObjs = []
-	let tabs = await browser.tabs.query({})
-	console.log('tabs', tabs)
+	let tabs = await getAllTabs()
 	for (const t of tabs) {
-		let u = new URL(t.url)
-		if (u.protocol === 'moz-extension:' && u.pathname === '/search.html' && u.hash === '#search') {
-			continue
-		}
 		let obj = {}
 		obj.id = t.id
 		obj.wid = t.windowId
@@ -40,6 +35,25 @@ async function renderTabs() {
 		let [_, tid, wid] = li.id.split('-')
 		li.addEventListener('click', () => gotoTab(parseInt(tid), parseInt(wid)))
 	}
+}
+
+async function getAllTabs() {
+	let tabs = await browser.tabs.query({})
+	let cw = await browser.windows.getCurrent()
+	let curs = []
+	let others = []
+	for (const t of tabs) {
+		let u = new URL(t.url)
+		if (u.protocol === 'moz-extension:' && u.pathname === '/search.html' && u.hash === '#search') {
+			continue
+		}
+		if (t.windowId === cw.id) {
+			curs.push(t)
+		} else {
+			others.push(t)
+		}
+	}
+	return curs.concat(others)
 }
 
 function showTab(e) {
