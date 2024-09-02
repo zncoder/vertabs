@@ -19,7 +19,7 @@ async function closeCurTab() {
 	await browser.tabs.remove(tab.id)
 }
 
-browser.browserAction.onClicked.addListener(browser.sidebarAction.toggle)
+browser.browserAction.onClicked.addListener(() => {browser.sidebarAction.toggle()})
 
 browser.menus.create({
   id: 'close-win',
