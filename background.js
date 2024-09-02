@@ -15,8 +15,16 @@ async function closeCurWin() {
 }
 
 async function closeCurTab() {
-	let [tab] = await browser.tabs.query({active: true, currentWindow: true})
-	await browser.tabs.remove(tab.id)
+	let tabs = await browser.tabs.query({currentWindow: true})
+	if (tabs.length < 2) {
+		return
+	}
+	for (let tab of tabs) {
+		if (tab.active) {
+			await browser.tabs.remove(tab.id)
+			return
+		}
+	}
 }
 
 browser.browserAction.onClicked.addListener(() => {browser.sidebarAction.toggle()})
@@ -28,7 +36,7 @@ browser.menus.create({
 })
 browser.menus.create({
   id: 'close-tab',
-  title: 'Close tab',
+  title: 'Close to reveal tab',
   contexts: ['browser_action'],
 })
 browser.menus.onClicked.addListener(handleMenu)
