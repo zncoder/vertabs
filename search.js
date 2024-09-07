@@ -11,7 +11,9 @@ async function init() {
 
 const tabTmpls = `
 {{begin_li}}
-    <li id="t-{{id}}-{{wid}}" class="tab-li">{{title}}</li>
+    <li id="t-{{id}}-{{wid}}" class="tab-li">
+        <span class="close-btn" title="close">&nbsp;⨯&nbsp;&nbsp;&nbsp;&nbsp;</span><span>{{title}}</span>
+    </li>
 {{end_li}}
 `
 
@@ -33,8 +35,19 @@ async function renderTabs() {
 	let lis = document.querySelectorAll('.tab-li')
 	for (let li of lis) {
 		let [_, tid, wid] = li.id.split('-')
-		li.addEventListener('click', () => gotoTab(parseInt(tid), parseInt(wid)))
+		tid = parseInt(tid)
+		li.addEventListener('click', () => gotoTab(tid, parseInt(wid)))
+		let closeBtn = li.querySelector('.close-btn')
+		closeBtn.addEventListener('click', onCloseTab)
 	}
+}
+
+async function onCloseTab(ev) {
+	ev.stopPropagation()
+	let li = ev.target.parentElement
+	let [_, tid, __] = li.id.split('-')
+	await browser.tabs.remove(parseInt(tid))
+	li.parentNode.removeChild(li)
 }
 
 async function getAllTabs() {

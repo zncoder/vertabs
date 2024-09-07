@@ -10,11 +10,17 @@ function handleMenu(info, tab) {
 }
 
 async function closeCurWin() {
+	if (await browser.sidebarAction.isOpen({})) {
+		return
+	}
 	let win = await browser.windows.getCurrent()
 	await browser.windows.remove(win.id)
 }
 
 async function closeCurTab() {
+	if (await browser.sidebarAction.isOpen({})) {
+		return
+	}
 	let tabs = await browser.tabs.query({currentWindow: true})
 	if (tabs.length < 2) {
 		return
@@ -30,13 +36,13 @@ async function closeCurTab() {
 browser.browserAction.onClicked.addListener(() => {browser.sidebarAction.toggle()})
 
 browser.menus.create({
-  id: 'close-win',
-  title: 'Close window',
+  id: 'close-tab',
+  title: 'Close to show tab',
   contexts: ['browser_action'],
 })
 browser.menus.create({
-  id: 'close-tab',
-  title: 'Close to reveal tab',
+  id: 'close-win',
+  title: 'Close window',
   contexts: ['browser_action'],
 })
 browser.menus.onClicked.addListener(handleMenu)
