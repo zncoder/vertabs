@@ -2,7 +2,6 @@ const isPopup = window.location.href.endsWith('popup') || window.location.href.e
 const tabsDiv = document.querySelector('#tabs-div')
 let stickyUl = document.querySelector('#sticky-ul')
 let othersUl = document.querySelector('#others-ul')
-let detachWin = null
 
 async function listTab() {
 	let sticky = []
@@ -428,18 +427,22 @@ async function closeCurTab(ev) {
 
 async function detachTab(ev) {
 	let [tab] = await browser.tabs.query({active: true, currentWindow: true})
-	if (detachWin) {
-		try {
-			await browser.windows.get(detachWin)
-		} catch (e) {
-			detachWin = null
+	let wins = await browser.windows.getAll()
+	let candidates = []
+	for (let w of wins) {
+		if (w.state === 'minimized' || w.focused) {
+			continue
+		}
+		let open = await browser.sidebarAction.isOpen({windowId: w.id})
+		if (!open) {
+			candidates.push(w)
 		}
 	}
-	if (detachWin) {
-		await browser.tabs.move(tab.id, {windowId: detachWin, index: -1})
+	if (candidates.length > 0) {
+		await browser.tabs.move(tab.id, {windowId: candidates[0].id, index: 0})
+		await browser.tabs.update(tab.id, {active: true})
 	} else {
-		let win = await browser.windows.create({tabId: tab.id})
-		detachWin = win.id
+		await browser.windows.create({tabId: tab.id})
 	}
 }
 
