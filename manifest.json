@@ -1,6 +1,6 @@
 {
   "name": "vertabs",
-  "version": "1.57.0",
+  "version": "1.58.0",
   "manifest_version": 2,
   "description": "Show tabs vertically in sidebar",
   "permissions": [

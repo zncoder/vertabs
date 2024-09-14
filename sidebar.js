@@ -433,33 +433,44 @@ async function closeCurTab(ev) {
 	}
 }
 
-async function moveTabs(ev) {
-	if (bg.inMoving.active) {
-		await browser.browserAction.setBadgeText({text: ''})
-		bg.inMoving.active = false
-		if (bg.inMoving.tids.size > 0) {
-			let tids = []
-			for (let tid of bg.inMoving.tids) {
-				try {
-					let t = await browser.tabs.get(tid)
-					if (t.autoDiscardable) {
-						tids.push(tid)
-					}
-				} catch (e) {
-					// ignore
-				}
-			}
-			bg.inMoving.tids.clear()
-			let win = await browser.windows.getCurrent()
-			await browser.tabs.move(tids, {windowId: win.id, index: 0})
-		}
-	} else {
+async function moveTabs(ev, detach) {
+	if (!bg.inMoving.active) {
 		bg.inMoving.active = true
 		await browser.browserAction.setBadgeText({text: '!'})
 		let [tab] = await browser.tabs.query({active: true, currentWindow: true})
 		await addTabToInMoving(tab)
+		await refreshPage()
+		return
 	}
-	await refreshPage()
+
+	await browser.browserAction.setBadgeText({text: ''})
+	bg.inMoving.active = false
+	if (bg.inMoving.tids.size === 0) {
+		return
+	}
+
+	let tids = []
+	for (let tid of bg.inMoving.tids) {
+		try {
+			let t = await browser.tabs.get(tid)
+			if (t.autoDiscardable) {
+				tids.push(tid)
+			}
+		} catch (e) {
+			// ignore
+		}
+	}
+	bg.inMoving.tids.clear()
+
+	let win
+	let idx = detach ? 1 : 0
+	if (detach) {
+		win = await browser.windows.create({tabId: tids[0]})
+		tids.splice(0, 1)
+	} else {
+		win = await browser.windows.getCurrent()
+	}
+	await browser.tabs.move(tids, {windowId: win.id, index: idx})
 }
 
 async function addTabToInMoving(tab) {
@@ -471,9 +482,8 @@ async function addTabToInMoving(tab) {
 	}
 }
 
-async function detachTab(ev) {
-	let [tab] = await browser.tabs.query({active: true, currentWindow: true})
-	await browser.windows.create({tabId: tab.id})
+function detachTabs(ev) {
+	moveTabs(ev, true)
 }
 
 async function replaceTab(ev) {
