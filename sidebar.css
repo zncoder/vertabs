@@ -234,6 +234,10 @@ a {
     font-weight: bold;
 }
 
+.move-tab {
+	border: 1px dotted;
+}
+
 #search-div {
 	margin: 1em;
 	font-size: larger;

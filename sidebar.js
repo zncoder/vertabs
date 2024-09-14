@@ -2,6 +2,7 @@ const isPopup = window.location.href.endsWith('popup') || window.location.href.e
 const tabsDiv = document.querySelector('#tabs-div')
 let stickyUl = document.querySelector('#sticky-ul')
 let othersUl = document.querySelector('#others-ul')
+let bg
 
 async function listTab() {
 	let sticky = []
@@ -43,7 +44,7 @@ const uiTmpls = {
 	'others-ul': `
 <ul class="{{cls}}">
 	{{begin_li}}
-    <li id="li-{{id}}" draggable="true" class="hover-btn {{active_tab}} {{prev_tab}} {{csid_cls}}">
+    <li id="li-{{id}}" draggable="true" class="hover-btn {{active_tab}} {{move_tab}} {{prev_tab}} {{csid_cls}}">
 		<span id="c-{{id}}" class="close-btn" title="close">&nbsp;⨯&nbsp;</span><span id="t-{{id}}" class="tab-lnk" title="{{title}} - {{url}}">{{img}}{{title}}</span>
   	</li>{{end_li}}
 </ul>
@@ -197,6 +198,9 @@ function renderTabs(tabs, cls, prev) {
 			obj.prev_tab = 'prev-tab'
 			// console.log('prev', prev.id, prev.title)
 		}
+		if (bg.inMoving.tids.has(t.id)) {
+			obj.move_tab = 'move-tab'
+		}
 		if (t.favIconUrl && !t.favIconUrl.startsWith('chrome://mozapps')) {
 			obj.img = `<img src='${t.favIconUrl}' class="favicon"> `
 		}
@@ -269,7 +273,7 @@ async function focusPrevTab() {
 	let tabs = await browser.tabs.query({currentWindow: true})
 	let prev = findPrevTab(tabs)
 	if (prev) {
-		browser.tabs.update(prev.id, {active: true})
+		await browser.tabs.update(prev.id, {active: true})
 	}
 }
 
@@ -292,8 +296,12 @@ async function focusThisOrPrevTab(ev) {
 	} else {
 		await browser.tabs.update(tid, {active: true})
 	}
+	[cur] = await browser.tabs.query({active: true, currentWindow: true})
+	await addTabToInMoving(cur)
 	if (isPopup) {
 		window.close()
+	} else {
+		await refreshPage()
 	}
 }
 
@@ -425,25 +433,47 @@ async function closeCurTab(ev) {
 	}
 }
 
+async function moveTabs(ev) {
+	if (bg.inMoving.active) {
+		await browser.browserAction.setBadgeText({text: ''})
+		bg.inMoving.active = false
+		if (bg.inMoving.tids.size > 0) {
+			let tids = []
+			for (let tid of bg.inMoving.tids) {
+				try {
+					let t = await browser.tabs.get(tid)
+					if (t.autoDiscardable) {
+						tids.push(tid)
+					}
+				} catch (e) {
+					// ignore
+				}
+			}
+			bg.inMoving.tids.clear()
+			let win = await browser.windows.getCurrent()
+			await browser.tabs.move(tids, {windowId: win.id, index: 0})
+		}
+	} else {
+		bg.inMoving.active = true
+		await browser.browserAction.setBadgeText({text: '!'})
+		let [tab] = await browser.tabs.query({active: true, currentWindow: true})
+		await addTabToInMoving(tab)
+	}
+	await refreshPage()
+}
+
+async function addTabToInMoving(tab) {
+	if (!bg.inMoving.active) {
+		return
+	}
+	if (tab.autoDiscardable ) {
+		bg.inMoving.tids.add(tab.id)
+	}
+}
+
 async function detachTab(ev) {
 	let [tab] = await browser.tabs.query({active: true, currentWindow: true})
-	let wins = await browser.windows.getAll()
-	let candidates = []
-	for (let w of wins) {
-		if (w.state === 'minimized' || w.focused) {
-			continue
-		}
-		let open = await browser.sidebarAction.isOpen({windowId: w.id})
-		if (!open) {
-			candidates.push(w)
-		}
-	}
-	if (candidates.length > 0) {
-		await browser.tabs.move(tab.id, {windowId: candidates[0].id, index: 0})
-		await browser.tabs.update(tab.id, {active: true})
-	} else {
-		await browser.windows.create({tabId: tab.id})
-	}
+	await browser.windows.create({tabId: tab.id})
 }
 
 async function replaceTab(ev) {
@@ -634,6 +664,7 @@ function enableListener() {
 }
 
 async function init() {
+	bg = await browser.runtime.getBackgroundPage()
 	await unpinAll()
 	await refreshPage()
 	enableListener()

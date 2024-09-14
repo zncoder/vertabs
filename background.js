@@ -1,3 +1,5 @@
+var inMoving = {active: false, tids: new Set()}
+
 function handleMenu(info, tab) {
 	switch (info.menuItemId) {
 	case 'close-win':
