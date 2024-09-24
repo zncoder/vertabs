@@ -486,6 +486,11 @@ function detachTabs(ev) {
 	moveTabs(ev, true)
 }
 
+async function popupTab(ev) {
+	let [tab] = await browser.tabs.query({active: true, currentWindow: true})
+	browser.windows.create({tabId: tab.id, type: 'popup'})
+}
+
 async function replaceTab(ev) {
 	await closeCurTab(ev)
 	await newTab(ev)

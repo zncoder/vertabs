@@ -8,6 +8,9 @@ function handleMenu(info, tab) {
 	case 'close-tab':
 		closeCurTab()
 		break
+	case 'attach-tab':
+		attachTab(tab)
+		break
 	}
 }
 
@@ -35,6 +38,18 @@ async function closeCurTab() {
 	}
 }
 
+async function attachTab(tab) {
+	let wins = await browser.windows.getAll({windowTypes: ['normal']})
+	for (let w of wins) {
+		if (w.id !== tab.windowId) {
+			await browser.tabs.move(tab.id, {windowId: w.id, index: 0})
+			await browser.tabs.update(tab.id, {active: true})
+			await browser.windows.update(w.id, {focused: true})
+			return
+		}
+	}
+}
+
 browser.browserAction.onClicked.addListener(() => {browser.sidebarAction.toggle()})
 
 browser.menus.create({
@@ -46,5 +61,10 @@ browser.menus.create({
   id: 'close-win',
   title: 'Close window',
   contexts: ['browser_action'],
+})
+browser.menus.create({
+  id: 'attach-tab',
+  title: 'Attach tab',
+  contexts: ['page'],
 })
 browser.menus.onClicked.addListener(handleMenu)
