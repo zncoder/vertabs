@@ -533,6 +533,14 @@ async function zoomPage(ev) {
 	await browser.tabs.setZoom(level)
 }
 
+async function fetchElem(url, sel) {
+	let resp = await fetch(url)
+	let text = await resp.text()
+	let dom = new DOMParser()
+	let doc = dom.parseFromString(text, 'text/html')
+	return doc.body.querySelector(sel)
+}
+
 async function archivePage(ev) {
 	const archiveSite = "https://archive.is/"
 
@@ -549,15 +557,22 @@ async function archivePage(ev) {
 		return
 	}
 
+	// search first
+	// https://archive.is/{url}
+	let el = await fetchElem(`${archiveSite}${url}`, '.TEXT-BLOCK a')
+	if (el) {
+		await browser.tabs.update({url: el.href})
+		return
+	}
+
 	// e.g. https://archive.is/submit/?submitid=Fo6mIYROjR8%2F6xOxYj1Dl6taQzWMDjsWTIgoDt09KaVTrxOx9flzbQfdDiUt5Qr2&url=https%3A%2F%2Fwww.wsj.com%2Ftech%2Fai%2Fsam-altman-openai-protected-by-silicon-valley-friends-f3efcf68
-	let resp = await fetch(archiveSite)
-	let text = await resp.text()
-	let dom = new DOMParser()
-	let doc = dom.parseFromString(text, 'text/html')
-	let submitid = doc.body.querySelector('input[name=submitid]').value
-	let arurl = `${archiveSite}submit/?submitid=${submitid}&url=${url}`
-	await browser.tabs.update({url: arurl})
-	ev.target.blur()
+	el = await fetchElem(archiveSite, 'input[name=submitid]')
+	if (el) {
+		let submitid = el.value
+		let arurl = `${archiveSite}submit/?submitid=${submitid}&url=${url}`
+		await browser.tabs.update({url: arurl})
+		ev.target.blur()
+	}
 }
 
 async function archiveOrgPage(ev) {
